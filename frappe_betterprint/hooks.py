@@ -5,6 +5,13 @@ app_description = "Frappe app with advanced print functions"
 app_email = "info@neocode.ch"
 app_license = "agpl-3.0"
 
+
+jinja = {
+    "methods": [
+        "frappe_betterprint.jinja.methods"
+    ]
+}
+
 # Apps
 # ------------------
 
