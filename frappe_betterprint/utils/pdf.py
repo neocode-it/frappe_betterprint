@@ -1,3 +1,46 @@
+from frappe_betterprint.utils.jinja import scrub_urls
+from frappe_betterprint.utils.server import launch_server
+import frappe
+import os
+import io
+import json
+import requests
+
+def get_pdf(html, options=None, output: PdfWriter | None = None):
+    launch_server()
+
+    if not options:
+        options = {}
+
+    page_size = prepare_page_size(options)
+
+    pdf_file_path = os.path.abspath(f"/tmp/{frappe.generate_hash()}.pdf")
+
+    body = {
+        "html": scrub_urls(scrub_urls(html)),
+        "filepath": pdf_file_path,
+        **page_size,
+    }
+
+    body = json.dumps(body)
+
+    response = requests.get(
+        "http://127.0.0.1:39584/v1/generate-pdf",
+        data=body,
+        headers={"content-type": "application/json"},
+        timeout=10,
+    )
+    if response.status_code != 200:
+        frappe.throw(
+            "PDF generation failed. Invalid status code from betterprint_server"
+        )
+
+    pdf_content = None
+    with open(pdf_file_path, "rb") as f:
+        pdf_content = f.read()
+        os.remove(pdf_file_path)
+
+    return filedata
 
 
 def prepare_page_size(options: str) -> dict:
