@@ -5,6 +5,8 @@ import os
 import io
 import json
 import requests
+from pypdf import PdfReader, PdfWriter
+
 
 def get_pdf(html, options=None, output: PdfWriter | None = None):
     launch_server()
@@ -40,7 +42,34 @@ def get_pdf(html, options=None, output: PdfWriter | None = None):
         pdf_content = f.read()
         os.remove(pdf_file_path)
 
+    reader = PdfReader(io.BytesIO(pdf_content))
+
+    if output:
+        output.append_pages_from_reader(reader)
+        return output
+
+    writer = PdfWriter()
+    writer.append_pages_from_reader(reader)
+
+    if "password" in options:
+        password = options["password"]
+        writer.encrypt(password)
+
+    filedata = get_file_data_from_writer(writer)
+
     return filedata
+
+
+def get_file_data_from_writer(writer_obj):
+    # https://docs.python.org/3/library/io.html
+    stream = io.BytesIO()
+    writer_obj.write(stream)
+
+    # Change the stream position to start of the stream
+    stream.seek(0)
+
+    # Read up to size bytes from the object and return them
+    return stream.read()
 
 
 def prepare_page_size(options: str) -> dict:
