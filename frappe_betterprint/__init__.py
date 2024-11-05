@@ -1,6 +1,11 @@
 __version__ = "0.0.1"
+
+
 import frappe
 from frappe import get_print
+from frappe.utils.pdf import get_pdf
+from frappe_betterprint.utils.pdf import get_pdf as get_betterprint_pdf
+
 
 def my_get_print(
     doctype=None,
@@ -51,5 +56,14 @@ def my_get_print(
         **kwargs,
     )
 
+
+def pdf(html, options=None, *args, **kwargs):
+    if options and options.get("betterprint_enabled", False):
+        return get_betterprint_pdf(html, options, *args, **kwargs)
+
+    return get_pdf(html, options=options, *args, **kwargs)
+
+
+frappe.utils.pdf.get_pdf = pdf
 
 frappe.get_print = my_get_print
