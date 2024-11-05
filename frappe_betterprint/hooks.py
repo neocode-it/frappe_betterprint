@@ -6,12 +6,8 @@ app_email = "info@neocode.ch"
 app_license = "agpl-3.0"
 
 
-jinja = {
-    "methods": [
-        "frappe_betterprint.jinja.methods"
-    ]
-}
-
+jinja = {"methods": ["frappe_betterprint.jinja.methods"]}
+after_migrate = "frappe_betterprint.install.after_install"
 # Apps
 # ------------------
 
@@ -248,4 +244,3 @@ jinja = {
 # default_log_clearing_doctypes = {
 # 	"Logging DocType Name": 30  # days to retain logs
 # }
-
