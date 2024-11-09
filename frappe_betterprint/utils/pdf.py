@@ -87,6 +87,13 @@ def prepare_page_size(options: str) -> dict:
         return page_dimensions.get(page_size, page_dimensions["A4"])
 
 
+def html_inject_print_format(html: str, print_format: str) -> str:
+    """Will inject print format name hidden into the html content"""
+    import html as html_lib
+
+    val = f'<!--bp-format="{html_lib.escape(print_format)}"-->'
+    return val + html
+
 page_dimensions = {
     "A0": {"page-height": 1189, "page-width": 841},
     "A1": {"page-height": 841, "page-width": 594},
