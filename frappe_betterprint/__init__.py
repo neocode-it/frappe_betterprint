@@ -50,3 +50,46 @@ def pdf(html, options=None, *args, **kwargs):
 
 
 frappe.utils.pdf.get_pdf = pdf
+
+
+unset_default_style = """
+<style>
+.print-format,
+.print-format::before,
+.print-format::after,
+.print-format *,
+.print-format *::before,
+.print-format *::after {
+/* Workaround: Print formats will apply default styles from Frappe
+    Which won't be applied to prints and Full Page view
+    Solution: Revert those Styles coming from Frappe */
+    all: revert;
+    box-sizing: border-box;
+}
+
+.print-format{
+ /* Workaround: print format will be set to flex column in js, 
+    which won't be applied to prints and Full Page view */
+    display: flex;
+    flex-direction: column;
+    
+    padding: 0cm;
+    width: 21cm;
+    min-height: 27.9cm;
+    margin: auto;
+    background: white;
+}
+
+.print-format, 
+.print-format-container,
+.print-preview iframe{
+    border-radius: 10px;
+}
+
+@media print{
+    @page{
+        margin: 0px;
+    }
+}
+</style>
+"""
