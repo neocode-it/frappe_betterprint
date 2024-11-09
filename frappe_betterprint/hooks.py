@@ -8,6 +8,9 @@ app_license = "agpl-3.0"
 
 jinja = {"methods": ["frappe_betterprint.jinja.methods"]}
 after_migrate = "frappe_betterprint.install.after_install"
+
+pdf_body_html = "frappe_betterprint.inject_body_html"
+
 # Apps
 # ------------------
 
