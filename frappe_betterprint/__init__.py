@@ -28,10 +28,25 @@ def inject_body_html(template, print_format=None, args=None, **kwargs):
 
 
 def pdf(html, options=None, *args, **kwargs):
-    if options and options.get("betterprint_enabled", False):
-        return get_betterprint_pdf(html, options, *args, **kwargs)
+    """Check if print format is betterprint_enabled\n\n
+    `enabled`: Selects betterprint pdf generator (using chrome)\n
+    `disabled`: Applys default pdf generator (wkhtmltopdf)"""
+    print_format = pdf_utils.html_extract_print_format(html)
 
-    return get_pdf(html, options=options, *args, **kwargs)
+    # Not a betterprint format? Return apply get_pdf() function
+    if not print_format:
+        return get_pdf(html, options=options, *args, **kwargs)
+
+    if not options:
+        options = {}
+
+    # PDF size not specifically declared? Use betterprint page size setting.
+    if not options.get("page-size"):
+        options["page-size"] = frappe.db.get_value(
+            "Print Format", print_format, "betterprint_pdf_page_size"
+        )
+
+    return pdf_utils.get_betterprint_pdf(html, options, *args, **kwargs)
 
 
 frappe.utils.pdf.get_pdf = pdf
