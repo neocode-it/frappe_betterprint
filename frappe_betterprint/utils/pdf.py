@@ -94,6 +94,16 @@ def html_inject_print_format(html: str, print_format: str) -> str:
     val = f'<!--bp-format="{html_lib.escape(print_format)}"-->'
     return val + html
 
+
+def html_extract_print_format(html: str) -> str | None:
+    """Extracts print format name from html content"""
+    import re
+
+    match = re.search(r'<!--bp-format="(.*?)"-->', html)
+    if match:
+        return match.group(1)
+
+
 page_dimensions = {
     "A0": {"page-height": 1189, "page-width": 841},
     "A1": {"page-height": 841, "page-width": 594},
