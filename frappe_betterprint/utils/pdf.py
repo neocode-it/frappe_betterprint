@@ -8,7 +8,8 @@ import requests
 from pypdf import PdfReader, PdfWriter
 
 
-def get_pdf(html, options=None, output: PdfWriter | None = None):
+def get_betterprint_pdf(html, options=None, output: PdfWriter | None = None):
+    """Will generate betterprint pdf file using chrome"""
     launch_server()
 
     if not options:
