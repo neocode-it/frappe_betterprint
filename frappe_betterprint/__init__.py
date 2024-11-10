@@ -23,10 +23,12 @@ def inject_body_html(template, print_format=None, args=None, **kwargs):
     # Render jinja
     html = pdf_body_html(template, args, **kwargs)
 
-    # Unset default preview styles.
+    # Unset default preview styles by overriding css variable of the print_format
+    # Luckily, doc.save() won't ever be called, which allows this nice approach
+    #
     # Fixes frappe issue: https://github.com/frappe/frappe/issues/27965
     if print_format.custom_format:
-        html = unset_default_style + html
+        print_format.css = unset_default_style + print_format.css
 
     # Inject print format name into html body content
     return pdf_utils.html_inject_print_format(html, print_format.name)
@@ -58,7 +60,6 @@ frappe.utils.pdf.get_pdf = pdf
 
 
 unset_default_style = """
-<style>
 .print-format,
 .print-format::before,
 .print-format::after,
@@ -96,5 +97,4 @@ unset_default_style = """
         margin: 0px;
     }
 }
-</style>
 """
