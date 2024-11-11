@@ -28,6 +28,8 @@ def inject_body_html(template, print_format=None, args=None, **kwargs):
     #
     # Fixes frappe issue: https://github.com/frappe/frappe/issues/27965
     if print_format.custom_format:
+        if not print_format.css:
+            print_format.css = ""
         print_format.css = unset_default_style + print_format.css
 
     # Inject print format name into html body content
