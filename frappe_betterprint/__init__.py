@@ -13,12 +13,12 @@ def inject_body_html(template, print_format=None, args=None, **kwargs):
         return pdf_body_html(template, args, **kwargs)
 
     # Betterprint dict, which will be accessible as context variable
-    betterint = {
+    betterprint = {
         "print_format_name": print_format.name,
     }
 
     # Inject betterprint as context variable within jinja env
-    args.update({"betterprint": betterint})
+    args.update({"betterprint": betterprint})
 
     # Render jinja
     html = pdf_body_html(template, args, **kwargs)
