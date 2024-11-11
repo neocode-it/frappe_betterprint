@@ -61,6 +61,21 @@ def get_betterprint_pdf(html, options=None, output: PdfWriter | None = None):
     return filedata
 
 
+def prepare_html_for_external_use(html: str) -> str:
+    """Expands relative urls and add private images inline"""
+    # Expand relative urls to absolute ones
+    # Important to add this before inline_private_images
+    html = expand_relative_urls(html)
+
+    # Set base url, in case we missed one relative path
+    html = f'<base href="{get_url()}">' + html
+
+    # Insert private images
+    html = inline_private_images(html)
+
+    return html
+
+
 def get_file_data_from_writer(writer_obj):
     # https://docs.python.org/3/library/io.html
     stream = io.BytesIO()
