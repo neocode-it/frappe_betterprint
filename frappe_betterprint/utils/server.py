@@ -4,7 +4,7 @@ import frappe
 import time
 
 
-def launch_server():
+def prelaunch_server():
     if not is_betterprint_server_installed():
         frappe.throw(
             "Betterprint server seems to be missing on your instance. Please install Betterprint_Server."
@@ -18,7 +18,13 @@ def launch_server():
             stdout=subprocess.DEVNULL,
             stderr=subprocess.DEVNULL,
         )
+    except Exception as e:
+        print(e)
+        frappe.throw("ERROR: Couldn't start betterprint_server.")
 
+
+def wait_for_ready():
+    try:
         # Repeat if the server isn't ready to accept connections yet
         for _ in range(3):
             try:
@@ -33,7 +39,6 @@ def launch_server():
                 pass
 
             time.sleep(0.5)
-
     except Exception as e:
         print(e)
         frappe.throw("ERROR: Couldn't start betterprint_server.")
