@@ -4,10 +4,14 @@ Frappe app with advanced print functions, mainly focused on improving custom Jin
 
 ## Features
 
-- Pdf-generation using a more modern chromium-based solution with full html & css support.
-- Set individual page size per print format
-- "split_table_by_height(html, style, max_height)" Jinja method to split table into pages by calculating the (actual) rendered height per page.
-- "better_page_break()" Jinja method to display a visible page break
+- **More modern pdf-generation**
+PDF-rendering based on chromium allows moderndays html ans css support and uniform prints. Simply check "Generate PDF using Frappe Betterprint" in Print Format settings. Frappe Betterprint also unsets every default style for print preview in order to prevent differences between preview/actual print.
+- **Individual page size per Print Format**
+Select individual pdf page size per Print Format: Enable Betterprint within print format settings and select your Page size.
+- **`split_table_by_height(html, style, max_height)` Jinja method"** 
+Jinja method to split table into pages by calculating the (actual) rendered height per page.
+- **`better_page_break()` Jinja method** 
+Jinja method to display a visible page break in preview, and actual page break in prints.
 
 ## Current Limitations
 
