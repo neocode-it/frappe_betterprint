@@ -1,5 +1,5 @@
-from frappe_betterprint.utils.jinja import scrub_urls
-from frappe_betterprint.utils.server import launch_server
+import frappe_betterprint.utils.server as betterprint_server
+from frappe_betterprint.utils.print import prepare_html_for_external_use
 import frappe
 import os
 import io
@@ -10,7 +10,7 @@ from pypdf import PdfReader, PdfWriter
 
 def get_betterprint_pdf(html, options=None, output: PdfWriter | None = None):
     """Will generate betterprint pdf file using chrome"""
-    launch_server()
+    betterprint_server.prelaunch_server()
 
     if not options:
         options = {}
@@ -19,13 +19,17 @@ def get_betterprint_pdf(html, options=None, output: PdfWriter | None = None):
 
     pdf_file_path = os.path.abspath(f"/tmp/{frappe.generate_hash()}.pdf")
 
+    html = prepare_html_for_external_use(html)
+
     body = {
-        "html": scrub_urls(scrub_urls(html)),
+        "html": html,  # scrub_urls(html),
         "filepath": pdf_file_path,
         **page_size,
     }
 
     body = json.dumps(body)
+
+    betterprint_server.wait_for_ready()
 
     response = requests.get(
         "http://127.0.0.1:39584/v1/generate-pdf",
@@ -39,6 +43,7 @@ def get_betterprint_pdf(html, options=None, output: PdfWriter | None = None):
         )
 
     pdf_content = None
+
     with open(pdf_file_path, "rb") as f:
         pdf_content = f.read()
         os.remove(pdf_file_path)
@@ -59,21 +64,6 @@ def get_betterprint_pdf(html, options=None, output: PdfWriter | None = None):
     filedata = get_file_data_from_writer(writer)
 
     return filedata
-
-
-def prepare_html_for_external_use(html: str) -> str:
-    """Expands relative urls and add private images inline"""
-    # Expand relative urls to absolute ones
-    # Important to add this before inline_private_images
-    html = expand_relative_urls(html)
-
-    # Set base url, in case we missed one relative path
-    html = f'<base href="{get_url()}">' + html
-
-    # Insert private images
-    html = inline_private_images(html)
-
-    return html
 
 
 def get_file_data_from_writer(writer_obj):
