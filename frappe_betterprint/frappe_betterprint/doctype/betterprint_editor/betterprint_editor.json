@@ -1,0 +1,195 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2024-11-13 23:25:12.722477",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "general_settings_section",
+  "column_break_rpom",
+  "create_new_betterprint_format",
+  "new_format",
+  "create",
+  "column_break_buwi",
+  "edit_existing_betterprint_format",
+  "reference_format",
+  "select",
+  "general",
+  "column_break_ncfz",
+  "format_name",
+  "column_break_xzru",
+  "pdf_page_size",
+  "header_height",
+  "footer_height",
+  "header_content_section",
+  "column_break_qzhb",
+  "header_html",
+  "body_content_section",
+  "body_html",
+  "footer_section",
+  "footer_html",
+  "styles_section",
+  "css"
+ ],
+ "fields": [
+  {
+   "fieldname": "general_settings_section",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "column_break_rpom",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "edit_existing_betterprint_format",
+   "fieldtype": "Heading",
+   "label": "Edit existing BetterPrint Format"
+  },
+  {
+   "fieldname": "select",
+   "fieldtype": "Button",
+   "label": "Select"
+  },
+  {
+   "fieldname": "create_new_betterprint_format",
+   "fieldtype": "Heading",
+   "label": "Create new BetterPrint Format"
+  },
+  {
+   "fieldname": "create",
+   "fieldtype": "Button",
+   "label": "Create"
+  },
+  {
+   "fieldname": "column_break_buwi",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "A4",
+   "fieldname": "pdf_page_size",
+   "fieldtype": "Select",
+   "label": "PDF Page Size",
+   "options": "A0\nA1\nA2\nA3\nA4\nA5\nA6\nA7\nA8\nA9\nB0\nB1\nB2\nB3\nB4\nB5\nB6\nB7\nB8\nB9\nB10\nC5E\nComm10E\nDLE\nExecutive\nFolio\nLedger\nLegal\nLetter\nTabloid"
+  },
+  {
+   "fieldname": "format_name",
+   "fieldtype": "Data",
+   "label": "Name"
+  },
+  {
+   "fieldname": "general",
+   "fieldtype": "Section Break",
+   "label": "General"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "header_content_section",
+   "fieldtype": "Section Break",
+   "label": "Header content"
+  },
+  {
+   "fieldname": "column_break_qzhb",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_ncfz",
+   "fieldtype": "Column Break",
+   "width": "20px"
+  },
+  {
+   "description": "Body HTML will be dynamically split into pages, based on the element size. Available BetterPrint methods: <code>better_page_break()</code>",
+   "fieldname": "body_html",
+   "fieldtype": "Code",
+   "label": "Body HTML",
+   "options": "Jinja"
+  },
+  {
+   "fieldname": "footer_height",
+   "fieldtype": "Int",
+   "label": "Footer height (mm)"
+  },
+  {
+   "fieldname": "header_height",
+   "fieldtype": "Int",
+   "label": "Header height (mm)"
+  },
+  {
+   "fieldname": "column_break_xzru",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "css",
+   "fieldtype": "Code",
+   "label": "CSS",
+   "options": "CSS"
+  },
+  {
+   "description": "Available BetterPrint methods: <code>current_page</code>, <code>page_count</code>, <code>better_page_break()</code>",
+   "fetch_from": "print_format.html",
+   "fieldname": "header_html",
+   "fieldtype": "Code",
+   "label": "Header HTML",
+   "options": "Jinja"
+  },
+  {
+   "description": "Available BetterPrint methods: <code>current_page</code>, <code>page_count</code>, <code>better_page_break()</code>",
+   "fieldname": "footer_html",
+   "fieldtype": "Code",
+   "label": "Footer HTML",
+   "options": "Jinja"
+  },
+  {
+   "fieldname": "reference_format",
+   "fieldtype": "Link",
+   "link_filters": "[[\"Print Format\",\"custom_format\",\"=\",1]]",
+   "options": "Print Format"
+  },
+  {
+   "fieldname": "new_format",
+   "fieldtype": "Data"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "body_content_section",
+   "fieldtype": "Section Break",
+   "label": "Body content"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "footer_section",
+   "fieldtype": "Section Break",
+   "label": "Footer"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "styles_section",
+   "fieldtype": "Section Break",
+   "label": "Styles"
+  }
+ ],
+ "hide_toolbar": 1,
+ "index_web_pages_for_search": 1,
+ "is_virtual": 1,
+ "issingle": 1,
+ "links": [],
+ "modified": "2024-11-18 23:14:12.296763",
+ "modified_by": "Administrator",
+ "module": "Frappe Betterprint",
+ "name": "BetterPrint Editor",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}
