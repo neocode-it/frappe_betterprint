@@ -1,4 +1,25 @@
 
+def html_wrapper(body: str, style: str) -> str:
+    return f"""
+    <!DOCTYPE html>
+        <head>
+            <meta charset="UTF-8">
+            <title>PRINT</title>
+            <meta name="viewport" content="width=device-width,initial-scale=1">
+            <style>
+                {style}
+            </style>
+        </head>
+        <body>
+            <div class="print-format-gutter">
+                <div class="print-format" style="max-height: unset !important">
+                    {body}
+                </div>
+            </div>
+        </body>
+    </html> 
+    """
+
 
 def page_break() -> str:
     return """
