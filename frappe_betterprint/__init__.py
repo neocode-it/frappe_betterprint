@@ -4,6 +4,8 @@ import frappe
 from frappe.utils.pdf import get_pdf, pdf_body_html
 import frappe_betterprint.utils.pdf as pdf_utils
 
+betterprint_local = frappe.local.betterprint = dict()
+
 
 def inject_body_html(template, print_format=None, args=None, **kwargs):
     """Check if print format is betterprint enabled and injects additional content"""
