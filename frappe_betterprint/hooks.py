@@ -8,7 +8,7 @@ app_license = "agpl-3.0"
 
 jinja = {"methods": ["frappe_betterprint.jinja.methods"]}
 after_install = "frappe_betterprint.install.after_install"
-before_uninstall = "frappe_betterprint.install.after_uninstall"
+before_uninstall = "frappe_betterprint.install.before_uninstall"
 
 pdf_body_html = "frappe_betterprint.inject_body_html"
 
