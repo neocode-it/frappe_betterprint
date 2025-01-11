@@ -42,6 +42,7 @@ fields = {
             "fieldname": "generate_pdf_by_betterprint",
             "label": "Generate PDF using Frappe Betterprint",
             "fieldtype": "Check",
+            "depends_on": "custom_format",
             "default": "0",
             "insert_after": "custom_format",
         },
