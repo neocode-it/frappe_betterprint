@@ -24,23 +24,41 @@ listenForAjaxStateChange((newState) => {
         return;
     }
 
-    content = document.querySelector(".print-preview iframe")?.contentDocument;
+    iframe = document.querySelector(".print-preview iframe")?.contentDocument;
     
-    if(content === null){
+    if(!iframe){
         return;
     }
 
-    script = content.querySelector(".print-format-preview")?.firstElementChild;
+    dom = iframe.querySelector(".betterprint-script");
 
-    if(script === null){
+    if(!dom){
         return;
     }
 
-    if (script.classList.contains("betterprint-script")) { 
-        script.classList.remove("betterprint-script");
+    if (dom.classList.contains("betterprint-script")) {
+        console.log("Found betterprint");
+        target = iframe.querySelector(".print-format-preview");
+
+        // Initialize the Previewer using the global Paged object
+        let paged = new Paged.Previewer(); // PagedModule
+
+        // Use paged.preview with the selected DOM iframe
+        paged.preview(dom.content, null, target).then((flow) => {
+            console.log("Rendered", flow.total, "pages.");
+        });
+
+
+        // dom.classList.remove("betterprint-script");
+
+
         // Run Script
         // new Function(script.innerHTML)();
         console.log("Betterprint content loaded :)");
+
+        ifr = document.querySelector(".print-preview iframe");
+
+        ifr.style.height = ifr.contentWindow.document.documentElement.scrollHeight + 'px';    
     }
 });
 
