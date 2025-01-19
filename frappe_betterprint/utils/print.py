@@ -53,3 +53,18 @@ def page_break() -> str:
     </style>
     """
 
+
+
+def prepare_html_for_external_use(html: str) -> str:
+    """Expands relative urls and add private images inline"""
+    # Expand relative urls to absolute ones
+    # Important to add this before inline_private_images
+    html = expand_relative_urls(html)
+
+    # Set base url, in case we missed one relative path
+    html = f'<base href="{get_url()}">' + html
+
+    # Insert private images
+    html = inline_private_images(html)
+
+    return html
