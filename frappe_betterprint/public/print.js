@@ -62,5 +62,12 @@ listenForAjaxStateChange((newState) => {
     }
 });
 
-// Use this in order to prevent-double-loading?
-betterPdfLink = "";
+
+function preParePageContents(iframe) {
+    const printFormat = iframe.querySelector(".print-format.print-format-preview");
+
+    printFormat.style.padding = "0";
+    printFormat.style.margin = "0";
+
+    return printFormat.firstChild;
+}
