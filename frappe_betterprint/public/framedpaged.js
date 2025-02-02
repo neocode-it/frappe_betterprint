@@ -33169,7 +33169,7 @@
 			}
 
 			if (!stylesheets) {
-				stylesheets = this.removeStyles();
+				stylesheets = this.removeStyles(content);
 			}
 
 			this.polisher.setup();
