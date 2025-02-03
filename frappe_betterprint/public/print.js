@@ -18,7 +18,6 @@ function listenForAjaxStateChange(callback) {
     }
 }
 
-// Usage example:
 listenForAjaxStateChange((newState) => {
     if (newState !== "complete"){
         return;
