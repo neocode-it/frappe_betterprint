@@ -68,6 +68,7 @@ function preParePageContents(iframe) {
 
     printFormat.style.padding = "0";
     printFormat.style.margin = "0";
+    printFormat.style.width = "fit-content";
 
     return printFormat.firstChild;
 }
