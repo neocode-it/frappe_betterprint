@@ -26,12 +26,24 @@ listenForAjaxStateChange((newState) => {
 
     iframe = document.querySelector(".print-preview iframe")?.contentDocument;
     
+    // Check if this format is a betterprint format
     if(!iframe){
         return;
     }
+    
+    restoreDefaultPreview();
+    
+    if(!iframe.querySelector(".betterprint-script")){
+        return;
+    }
 
-    dom = iframe.querySelector(".betterprint-script");
+    // Test if it has been processed
+    if(!iframe.querySelector(".betterprint-script.active")){
+        return;
+    }
 
+    // Remove styles applied earlier to preview
+    restoreDefaultPreview();
     if(!dom){
         return;
     }
@@ -46,22 +58,18 @@ listenForAjaxStateChange((newState) => {
         // Use paged.preview with the selected DOM iframe
         paged.preview(dom.content, null, target).then((flow) => {
             console.log("Rendered", flow.total, "pages.");
-        });
+function restoreDefaultPreview(){
+    // Remove size presets
+    printPreview = document.querySelector(".print-preview");
+    printPreview.removeAttribute("style");
 
+    // Remove scale for oversized formats
+    const contentFrame = document.querySelector(".print-preview iframe");
+    contentFrame.contentDocument.body.removeAttribute("style");
 
-        // dom.classList.remove("betterprint-script");
-
-
-        // Run Script
-        // new Function(script.innerHTML)();
-        console.log("Betterprint content loaded :)");
-
-        ifr = document.querySelector(".print-preview iframe");
-
-        ifr.style.height = ifr.contentWindow.document.documentElement.scrollHeight + 'px';    
-    }
-});
-
+    // Height settings for iframe don't need to be removed
+    // frappe's print script will adjust it by itself
+}
 
 function preParePageContents(iframe) {
     const printFormat = iframe.querySelector(".print-format.print-format-preview");
