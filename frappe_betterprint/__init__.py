@@ -4,6 +4,30 @@ import frappe
 from frappe.utils.pdf import get_pdf, pdf_body_html
 import frappe_betterprint.utils.pdf as pdf_utils
 
+from frappe.www.printview import get_rendered_template
+
+
+def get_betterprint_template(
+    doc: "Document",
+    print_format: str | None = None,
+    *args,
+    **kwargs,
+):
+    content = get_rendered_template(doc=doc, print_format=print_format, *args, **kwargs)
+
+    script = '<script src="/assets/frappe_betterprint/js/test.js"></script>'
+    if print_format.generate_pdf_by_betterprint:
+        return (
+            f"<template data-ref='pagedjs-content' class='betterprint-script active'>{content}</template>"
+            + script
+        )
+
+    return content
+
+
+frappe.www.printview.get_rendered_template = get_betterprint_template
+
+
 betterprint_local = frappe.local.betterprint = dict()
 
 
