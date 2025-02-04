@@ -43,6 +43,8 @@ listenForAjaxStateChange((newState) => {
 
     // Remove styles applied earlier to preview
     restoreDefaultPreview();
+    dom = preParePageContents(iframe);
+    
     if(!dom){
         return;
     }
@@ -71,11 +73,13 @@ function restoreDefaultPreview(){
 }
 
 function preParePageContents(iframe) {
-    const printFormat = iframe.querySelector(".print-format.print-format-preview");
+    const printFormat = iframe.querySelector(".print-format");
 
     printFormat.style.padding = "0";
     printFormat.style.margin = "0";
     printFormat.style.width = "fit-content";
+
+    document.querySelector(".print-preview").style.minHeight = "unset";
 
     return printFormat.firstChild;
 }
