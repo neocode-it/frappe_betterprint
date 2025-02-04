@@ -30,9 +30,9 @@ listenForAjaxStateChange((newState) => {
         return;
     }
     
-    restoreDefaultPreview();
-    
     if(!iframe.querySelector(".betterprint-script")){
+        restoreDefaultPreview();
+
         return;
     }
 
