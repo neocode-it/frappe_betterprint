@@ -59,6 +59,30 @@ listenForAjaxStateChange((newState) => {
         // Use paged.preview with the selected DOM iframe
         paged.preview(dom.content, null, target).then((flow) => {
             console.log("Rendered", flow.total, "pages.");
+            
+            iframe = document.querySelector(".print-preview iframe");
+            preview = iframe.contentDocument.querySelector(".print-format");
+            
+            
+            const parentWidth = document.querySelector(".print-preview").offsetWidth;
+            const contentWidth = preview.scrollWidth;
+
+            let scale = 1;
+            
+            if (parentWidth >= contentWidth) {
+                document.querySelector(".print-preview").style.width = contentWidth + "px";
+            } else {
+                scale = parentWidth / contentWidth;
+                iframe.contentDocument.body.style.transform = `scale(${scale})`;
+                // This ensures the content scales from the top-left corner
+                iframe.contentDocument.body.style.transformOrigin = "0 0";
+            }
+
+            // Adjust height
+            // Needs to have a delay, since frappe's print.js will adjust the height by itself, which might reset height in this case.
+            setTimeout(() => {
+                iframe.style.height = Math.round(preview.scrollHeight * scale) + "px";
+            }, 500);
 function restoreDefaultPreview(){
     // Remove size presets
     printPreview = document.querySelector(".print-preview");
