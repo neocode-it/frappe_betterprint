@@ -107,3 +107,9 @@ function preParePageContents(iframe) {
 
     return printFormat.firstChild;
 }
+
+class BetterPrint{
+
+}
+
+new BetterPrint();
