@@ -110,6 +110,47 @@ function preParePageContents(iframe) {
 
 class BetterPrint{
 
+    constructor(){
+        if (typeof myVariable === "undefined"){
+            document.addEventListener("DOMContentLoaded", this.renderPrint());
+        } else {
+            this.isPreview = true;
+            this.registerPreviewListener(onPreviewStateChange);
+        }
+
+        // TODO: Prevent/delay print trigger (frappe script) until rendering is done for print-view
+    }
+
+    registerPreviewListener(callback) {
+        const targetNode = document.body;
+    
+        const observer = new MutationObserver((mutationsList) => {
+            for (const mutation of mutationsList) {
+                if (mutation.type === 'attributes' && mutation.attributeName === 'data-ajax-state') {
+                    callback(targetNode.getAttribute('data-ajax-state'));
+                }
+            }
+        });
+    
+        observer.observe(targetNode, { attributes: true });
+    
+        // Check for the initial state
+        const initialState = targetNode.getAttribute('data-ajax-state');
+        if (initialState !== null) {
+            callback(initialState);
+        }
+    }
+    
+    onPreviewStateChange(newState){
+        if (newState !== "complete"){
+            return;
+        }
+
+        // do pre-checks
+        // Check if it is betterprint...
+        // launch betterprint
+    }
+
 }
 
 new BetterPrint();
