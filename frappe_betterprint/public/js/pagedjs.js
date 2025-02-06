@@ -2,6 +2,8 @@
  * @license Paged.js v0.5.0-beta.2 | MIT | https://gitlab.coko.foundation/pagedjs/pagedjs
  */
 
+pagedTargetDocument = document;
+
 (function (global, factory) {
 	typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
 	typeof define === 'function' && define.amd ? define(['exports'], factory) :
@@ -3900,7 +3902,7 @@
 			if (renderTo) {
 				renderTo.appendChild(this.pagesArea);
 			} else {
-				document.querySelector("body").appendChild(this.pagesArea);
+				pagedTargetDocument.querySelector("body").appendChild(this.pagesArea);
 			}
 
 			this.pageTemplate = document.createElement("template");
@@ -3916,8 +3918,8 @@
 		];
 
 		recordRulesToDisable() {
-			for (var i in document.styleSheets) {
-				let sheet = document.styleSheets[i];
+			for (var i in pagedTargetDocument.styleSheets) {
+				let sheet = pagedTargetDocument.styleSheets[i];
 				for (var j in sheet.cssRules) {
 					let rule = sheet.cssRules.item(j);
 					if (rule && rule.style) {
@@ -4390,7 +4392,7 @@
 
 		loadFonts() {
 			let fontPromises = [];
-			(document.fonts || []).forEach((fontFace) => {
+			(pagedTargetDocument.fonts || []).forEach((fontFace) => {
 				if (fontFace.status !== "loaded") {
 					let fontLoaded = fontFace.load().then((r) => {
 						return fontFace.family;
@@ -28555,7 +28557,7 @@
 		setup() {
 			this.base = this.insert(baseStyles);
 			this.styleEl = document.createElement("style");
-			document.head.appendChild(this.styleEl);
+			pagedTargetDocument.head.appendChild(this.styleEl);
 			this.styleSheet = this.styleEl.sheet;
 			return this.styleSheet;
 		}
@@ -28625,8 +28627,8 @@
 		}
 
 		insert(text){
-			let head = document.querySelector("head");
-			let style = document.createElement("style");
+			let head = pagedTargetDocument.querySelector("head");
+			let style = pagedTargetDocument.createElement("style");
 			style.setAttribute("data-pagedjs-inserted-styles", "true");
 
 			style.appendChild(document.createTextNode(text));
@@ -33163,7 +33165,7 @@
 						}
 
 						// force redraw
-						let el = document.querySelector(`[data-${target.variable}="${selector}"]`);
+						let el = pagedTargetDocument.querySelector(`[data-${target.variable}="${selector}"]`);
 						if (el) {
 							el.style.display = "none";
 							el.clientHeight;
@@ -34287,7 +34289,7 @@
 
 		wrapContent() {
 			// Wrap body in template tag
-			let body = document.querySelector("body");
+			let body = pagedTargetDocument.querySelector("body");
 
 			// Check if a template exists
 			let template;
@@ -34305,7 +34307,8 @@
 			return template.content;
 		}
 
-		removeStyles(doc=document, content=null) {
+		removeStyles(doc=pagedTargetDocument, content=null) {
+			console.log(doc);
 			// Get all stylesheets
 			const stylesheets = Array.from(doc.querySelectorAll("link[rel='stylesheet']:not([data-pagedjs-ignore], [media~='screen'])"));
 			// Get inline styles
@@ -34350,7 +34353,9 @@
 				});
 		}
 
-		async preview(content, stylesheets, renderTo) {
+		async preview(content, stylesheets, renderTo, targetDocument = document) {
+
+            pagedTargetDocument = targetDocument;
 
 			await this.hooks.beforePreview.trigger(content, renderTo);
 
@@ -34359,7 +34364,7 @@
 			}
 
 			if (!stylesheets) {
-				stylesheets = this.removeStyles(document, content);
+				stylesheets = this.removeStyles(targetDocument, content);
 			}
 
 			this.polisher.setup();
