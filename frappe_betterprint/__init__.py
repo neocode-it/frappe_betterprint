@@ -15,11 +15,15 @@ def get_betterprint_template(
 ):
     content = get_rendered_template(doc=doc, print_format=print_format, *args, **kwargs)
 
-    script = '<script src="/assets/frappe_betterprint/js/test.js"></script>'
+    betterprint_script = (
+        '<script src="/assets/frappe_betterprint/js/print.js"></script>'
+    )
+    pagedjs_script = '<script src="/assets/frappe_betterprint/js/pagedjs.js"></script>'
     if print_format.generate_pdf_by_betterprint:
         return (
-            f"<template data-ref='pagedjs-content' class='betterprint-script active'>{content}</template>"
-            + script
+            f"<template data-ref='pagedjs-content' class='betterprint-content'>{content}</template>"
+            + pagedjs_script
+            + betterprint_script
         )
 
     return content
