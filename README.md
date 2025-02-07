@@ -1,6 +1,6 @@
 # Frappe Betterprint
 
-Frappe app with advanced print functions, mainly focused on improving custom Jinja print formats. This app depends on [betterprint_server](https://github.com/neocode-it/frappe_betterprint_server).
+Frappe app with advanced print functions, mainly focused on improving custom Jinja print formats. This app depends on [betterprint_server](https://github.com/neocode-it/frappe_betterprint_server) in order to generate pdf's.
 
 ## Features
 
