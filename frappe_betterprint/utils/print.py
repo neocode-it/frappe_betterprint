@@ -54,6 +54,20 @@ def page_break() -> str:
     """
 
 
+def get_printstyle(print_format_name: str) -> str:
+    """Retrieves every print style for the print format"""
+
+    print_format = get_doc("Print Format", print_format_name)
+
+    # Add global css and bootstrap
+    print_css = bundled_asset("print.bundle.css").lstrip("/")
+    bootstrap_css = read_file(path.join(local.sites_path, print_css))
+
+    printstyle = get_print_style(style=None, print_format=print_format)
+    inline_style = print_format.css
+
+    return bootstrap_css + printstyle + inline_style
+
 
 def prepare_html_for_external_use(html: str) -> str:
     """Expands relative urls and add private images inline"""
