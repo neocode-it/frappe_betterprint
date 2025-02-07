@@ -60,6 +60,19 @@ class BetterPrint{
         this.renderPreview();
     }
 
+    renderPreview(){
+        // Reset possible previous styles
+        this.resetPreviewStyles(true);
+
+        // Prepare new styles
+        this.preparePreviewStyles();
+
+        // Initialize the Previewer using the global Paged object
+        let paged = new Paged.Previewer(); // PagedModule
+
+        paged.preview( this.printContentElement.content, null, this.printFormat, this.previewDocument).then(this.adjustPreviewDimensions.bind(this));
+    }
+
 }
 
 new BetterPrint();
