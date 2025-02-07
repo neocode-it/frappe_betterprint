@@ -73,6 +73,15 @@ class BetterPrint{
         paged.preview( this.printContentElement.content, null, this.printFormat, this.previewDocument).then(this.adjustPreviewDimensions.bind(this));
     }
 
+
+    emitFinishEvent(){
+        document.dispatchEvent(new CustomEvent("betterPrintFinished", {
+            detail: { 
+                message: "Betterprint has finished rendering page!"
+            }
+        }));
+    }
+
 }
 
 new BetterPrint();
