@@ -13,7 +13,6 @@ before_uninstall = "frappe_betterprint.install.before_uninstall"
 pdf_body_html = "frappe_betterprint.inject_body_html"
 
 page_js = {
-    # "print": "/public/print.js",
     "print": [
         "/public/js/pagedjs.js",
         "/public/js/print.js",
