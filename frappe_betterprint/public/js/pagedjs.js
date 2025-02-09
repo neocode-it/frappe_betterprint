@@ -28581,6 +28581,9 @@ pagedTargetDocument = document;
 					urls.push(arguments[i]);
 					f = request(arguments[i]).then((response) => {
 						return response.text();
+					}).catch((error) => {
+						console.error(`Failed to fetch URL: ${arguments[i]} - ${error.message}`);
+						return "";
 					});
 				}
 
@@ -28609,6 +28612,9 @@ pagedTargetDocument = document;
 			for (let url of sheet.imported) {
 				let str = await request(url).then((response) => {
 					return response.text();
+				}).catch((error) => {
+					console.error(`Failed to fetch URL: ${url} - ${error.message}`);
+					return "";
 				});
 				let text = await this.convertViaSheet(str, url);
 				this.insert(text);
