@@ -28587,16 +28587,18 @@ pagedTargetDocument = document;
 
 				fetched.push(f);
 			}
-
-			return await Promise.all(fetched)
-				.then(async (originals) => {
-					let text = "";
-					for (let index = 0; index < originals.length; index++) {
-						text = await this.convertViaSheet(originals[index], urls[index]);
-						this.insert(text);
-					}
-					return text;
-				});
+			
+			const results = await Promise.allSettled(fetched);
+			let text = "";
+			for (let index = 0; index < results.length; index++) {
+				if (results[index].status === "fulfilled") {
+					text = await this.convertViaSheet(results[index].value, urls[index]);
+					this.insert(text);
+				} else {
+					console.error(`Failed to fetch resource: ${urls[index]} - ${results[index].reason}`);
+				}
+			}
+			return text;
 		}
 
 		async convertViaSheet(cssStr, href) {
