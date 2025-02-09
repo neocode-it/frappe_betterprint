@@ -34321,7 +34321,7 @@ pagedTargetDocument = document;
 				stylesheets.push(...contentStylesheets);
 				// Inline styles
 				const contentInlineStyles = Array.from(content.querySelectorAll("style:not([data-pagedjs-inserted-styles], [data-pagedjs-ignore], [media~='screen'])"));
-				stylesheets.push(...contentInlineStyles);
+				inlineStyles.push(...contentInlineStyles);
 			}
 
 			const elements = [...stylesheets, ...inlineStyles];
