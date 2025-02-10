@@ -34316,7 +34316,6 @@ pagedTargetDocument = document;
 		}
 
 		removeStyles(doc=pagedTargetDocument, content=null) {
-			console.log(doc);
 			// Get all stylesheets
 			const stylesheets = Array.from(doc.querySelectorAll("link[rel='stylesheet']:not([data-pagedjs-ignore], [media~='screen'])"));
 			// Get inline styles
