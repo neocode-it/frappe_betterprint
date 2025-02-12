@@ -103,6 +103,20 @@ class BetterPrint{
         }, 500);
     }
 
+    resetPreviewStyles(keepDimensions = false){    
+        const height = this.iframe.offsetHeight + "px";
+        const width = this.printPreview.offsetWidth + "px";
+
+        this.printPreview.removeAttribute("style");
+        this.printFormat.removeAttribute("style");
+        this.iframe.removeAttribute("style");
+        this.previewDocument.body.removeAttribute("style");
+
+        if(keepDimensions){
+            this.printPreview.style.width = width;
+            this.iframe.style.height = height;
+        }
+    }
 
     emitFinishEvent(){
         document.dispatchEvent(new CustomEvent("betterPrintFinished", {
