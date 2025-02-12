@@ -7,8 +7,6 @@ class BetterPrint{
             this.isPreview = true;
             this.registerPreviewListener(this.onPreviewStateChange.bind(this));
         }
-
-        // TODO: Prevent/delay print trigger (frappe script) until rendering is done for print-view
     }
 
     registerPreviewListener(callback) {
