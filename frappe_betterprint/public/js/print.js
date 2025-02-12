@@ -73,6 +73,37 @@ class BetterPrint{
         paged.preview( this.printContentElement.content, null, this.printFormat, this.previewDocument).then(this.afterPreviewRendering.bind(this));
     }
 
+    afterPreviewRendering(flow){
+        console.log("Rendered", flow.total, "pages.");
+        
+        const contentWidth = this.printFormat.scrollWidth;
+        let scale = 1;
+
+        // Adjust height of parent to content
+        this.printPreview.style.width = contentWidth + "px";
+        // Check actual rendered width
+        const actualParentWidth = this.printPreview.offsetWidth;
+
+        
+
+        // Content larger than maxWidth of parent? scale content down
+        if(actualParentWidth < contentWidth){
+            scale = actualParentWidth / contentWidth;
+            this.iframe.contentDocument.body.style.transform = `scale(${scale})`;
+            // This ensures the content scales from the top-left corner
+            this.iframe.contentDocument.body.style.transformOrigin = "0 0";
+        }
+
+        // Adjust height
+        // Needs to have a delay, since frappe's print.js will adjust the height by itself, which might reset height in this case.
+        setTimeout(() => {
+            this.iframe.style.height = Math.round(this.printFormat.scrollHeight * scale) + "px";
+
+            this.emitFinishEvent();
+        }, 500);
+    }
+
+
     emitFinishEvent(){
         document.dispatchEvent(new CustomEvent("betterPrintFinished", {
             detail: { 
