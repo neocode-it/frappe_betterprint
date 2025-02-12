@@ -70,9 +70,8 @@ class BetterPrint{
         // Initialize the Previewer using the global Paged object
         let paged = new Paged.Previewer(); // PagedModule
 
-        paged.preview( this.printContentElement.content, null, this.printFormat, this.previewDocument).then(this.adjustPreviewDimensions.bind(this));
+        paged.preview( this.printContentElement.content, null, this.printFormat, this.previewDocument).then(this.afterPreviewRendering.bind(this));
     }
-
 
     emitFinishEvent(){
         document.dispatchEvent(new CustomEvent("betterPrintFinished", {
