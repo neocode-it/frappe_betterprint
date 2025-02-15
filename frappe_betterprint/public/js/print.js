@@ -124,6 +124,21 @@ class BetterPrint{
         this.printPreview.style.minHeight = "unset";
     }
 
+    async renderPrint(){
+        this.printFormat = document.querySelector(".print-format");
+
+        this.preparePrintStyles();
+
+        const dom = this.printFormat.querySelector(".betterprint-content");
+
+        if(!dom) return;
+
+        let paged = new Paged.Previewer();
+        
+        
+        paged.preview( dom.content, null, this.printFormat ).then(this.afterPrintRendering.bind(this));
+    }
+
     emitFinishEvent(){
         document.dispatchEvent(new CustomEvent("betterPrintFinished", {
             detail: { 
