@@ -139,6 +139,15 @@ class BetterPrint{
         paged.preview( dom.content, null, this.printFormat ).then(this.afterPrintRendering.bind(this));
     }
 
+    preparePrintStyles(){
+        this.printFormat.style.minHeight = "unset";
+        this.printFormat.style.margin = "0";
+        this.printFormat.style.padding = "0";
+
+        document.querySelector(".print-format-gutter").style.minHeight = "90vh";
+    }
+
+
     emitFinishEvent(){
         document.dispatchEvent(new CustomEvent("betterPrintFinished", {
             detail: { 
