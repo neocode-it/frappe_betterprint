@@ -116,6 +116,14 @@ class BetterPrint{
         }
     }
 
+    preparePreviewStyles(){
+        // Modify print-format styles in order to prevent issues between pagedjs and default frappe rendering
+        this.printFormat.style.padding = "0";
+        this.printFormat.style.margin = "0";
+        this.printFormat.style.width = "fit-content";
+        this.printPreview.style.minHeight = "unset";
+    }
+
     emitFinishEvent(){
         document.dispatchEvent(new CustomEvent("betterPrintFinished", {
             detail: { 
