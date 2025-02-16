@@ -198,6 +198,21 @@ class BetterPrint{
         this.checkAndTriggerPrint();
     }
 
+    checkAndTriggerPrint(){
+        const urlParams = new URLSearchParams(window.location.search);
+
+        // Check if the 'trigger_print' parameter is set to '1'
+        if (urlParams.get('trigger_print') === '1') {
+            window.print();
+            // close the window after print
+            // NOTE: doesn't close if print is cancelled in Chrome
+            // Changed timeout to 5s from 1s because it blocked mobile view rendering
+            setTimeout(function() {
+                window.close();
+            }, 5000);
+        }
+    }
+
     emitFinishEvent(){
         document.dispatchEvent(new CustomEvent("betterPrintFinished", {
             detail: { 
