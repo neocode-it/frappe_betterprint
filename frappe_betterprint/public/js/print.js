@@ -147,6 +147,56 @@ class BetterPrint{
         document.querySelector(".print-format-gutter").style.minHeight = "90vh";
     }
 
+    afterPrintRendering(flow){
+        console.log("Rendered", flow.total, "pages.");
+
+        document.querySelector(".action-banner").classList.remove("print-hide");
+
+        document.addEventListener("DOMContentLoaded", function() {
+            console.log("again");
+        });
+        
+        
+        let style = document.createElement('style');
+        style.textContent = `
+            .print-format-gutter{
+            justify-content: center;
+            display: flex;
+            padding: 30px;
+            background-color: #d1d8dd;
+            height: fit-content;
+            }
+            .action-banner a{
+            text-decoration: unset;
+            }
+            .action-banner a:hover{
+            text-decoration: underline;
+            }
+            .print-format{
+            width: fit-content;
+            /* scale can be applied here */
+            transform-origin: top center;
+            }
+
+            @media print{
+            .action-banner{
+                display: none;
+            }
+            .print-format-gutter{
+            padding: unset;
+            display: unset;
+            }
+            .print-format{
+            transform: unset;}
+            }
+        `;
+
+        document.head.appendChild(style);
+            
+        this.emitFinishEvent();
+
+        this.checkAndTriggerPrint();
+    }
 
     emitFinishEvent(){
         document.dispatchEvent(new CustomEvent("betterPrintFinished", {
