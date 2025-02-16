@@ -11,7 +11,9 @@ Frappe app with advanced print functions, mainly focused on improving custom Jin
 * Dynamic Headers & Footers: Apply different content per Page, add running numbers e.G.
 
 - **More modern pdf-generation**
-PDF-rendering based on chromium allows moderndays html ans css support and uniform prints. Simply check "Generate PDF using Frappe Betterprint" in Print Format settings. Frappe Betterprint also unsets every default style for print preview in order to prevent differences between preview/actual print.
+PDF-rendering based on chromium allows moderndays html ans css support and uniform prints. Simply check "Generate PDF using Frappe Betterprint" in Print Format settings. Frappe Betterprint also prevents different layouts between preview/final print layout & Style.
+- **Infinite amount of print-features like dynamic headers/footer, running texts and more**
+Fine-grained control over prints: Apply running texts (e.g. running total in footer or add chapter text to header), different headers (e.g. different header on page 1) and much more.
 - **Individual page size per Print Format**
 Select individual pdf page size per Print Format: Enable Betterprint within print format settings and select your Page size.
 - **`better_page_break()` Jinja method** 
