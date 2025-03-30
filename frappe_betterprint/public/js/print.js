@@ -131,10 +131,29 @@ class BetterPrint {
 
   preparePreviewStyles() {
     // Modify print-format styles in order to prevent issues between pagedjs and default frappe rendering
+    // hard-code those styles in order to ensure maximum priority
     this.printFormat.style.padding = "0";
     this.printFormat.style.margin = "0";
-    this.printFormat.style.width = "fit-content";
     this.printPreview.style.minHeight = "unset";
+
+    // Insert styles with less priority
+    const style = document.createElement("style");
+    style.innerHTML = `
+    body{
+      width: fit-content;
+    }
+    .print-format{
+      max-width: unset !important
+    }
+    .paginatejs-pages{
+      background-color: #ededed;
+    }
+    .page{
+      background-color: white;
+    }
+    `;
+    const head = this.previewDocument.head;
+    head.insertBefore(style, head.firstChild);
   }
 
   renderPrint() {
