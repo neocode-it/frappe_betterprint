@@ -137,7 +137,7 @@ class BetterPrint {
     this.printPreview.style.minHeight = "unset";
   }
 
-  async renderPrint() {
+  renderPrint() {
     this.printFormat = document.querySelector(".print-format");
 
     this.preparePrintStyles();
@@ -146,11 +146,17 @@ class BetterPrint {
 
     if (!dom) return;
 
-    let paged = new Paged.Previewer();
+    // Initialize the Previewer using the global Paged object
+    let paginate = new Paginate.Renderer(dom, this.printFormat);
+    paginate.render();
 
-    paged
-      .preview(dom.content, null, this.printFormat)
-      .then(this.afterPrintRendering.bind(this));
+    this.afterPrintRendering();
+
+    // let paged = new Paged.Previewer();
+
+    // paged
+    //   .preview(dom.content, null, this.printFormat)
+    //   .then(this.afterPrintRendering.bind(this));
   }
 
   preparePrintStyles() {
