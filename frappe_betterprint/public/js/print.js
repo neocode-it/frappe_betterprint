@@ -76,20 +76,17 @@ class BetterPrint {
     this.preparePreviewStyles();
 
     // Initialize the Previewer using the global Paged object
-    let paged = new Paged.Previewer(); // PagedModule
+    let paginate = new Paginate.Renderer(
+      this.printContentElement,
+      this.printFormat
+    );
+    paginate.render();
 
-    paged
-      .preview(
-        this.printContentElement.content,
-        null,
-        this.printFormat,
-        this.previewDocument
-      )
-      .then(this.afterPreviewRendering.bind(this));
+    this.afterPreviewRendering();
   }
 
-  afterPreviewRendering(flow) {
-    console.log("Rendered", flow.total, "pages.");
+  afterPreviewRendering() {
+    console.log("Rendered all pages.");
 
     const contentWidth = this.printFormat.scrollWidth;
     let scale = 1;
