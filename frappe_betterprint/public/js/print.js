@@ -1,8 +1,11 @@
 class BetterPrint {
   constructor() {
+    // Print view page
     if (typeof frappe === "undefined") {
       document.addEventListener("DOMContentLoaded", this.renderPrint());
-    } else {
+    }
+    // Print preview page
+    else {
       this.isPreview = true;
       this.registerPreviewListener(this.onPreviewStateChange.bind(this));
     }
@@ -130,7 +133,7 @@ class BetterPrint {
   }
 
   preparePreviewStyles() {
-    // Modify print-format styles in order to prevent issues between pagedjs and default frappe rendering
+    // Modify print-format styles in order to prevent issues between paginatejs and default frappe rendering
     // hard-code those styles in order to ensure maximum priority
     this.printFormat.style.padding = "0";
     this.printFormat.style.margin = "0";
@@ -170,12 +173,6 @@ class BetterPrint {
     paginate.render();
 
     this.afterPrintRendering();
-
-    // let paged = new Paged.Previewer();
-
-    // paged
-    //   .preview(dom.content, null, this.printFormat)
-    //   .then(this.afterPrintRendering.bind(this));
   }
 
   preparePrintStyles() {
