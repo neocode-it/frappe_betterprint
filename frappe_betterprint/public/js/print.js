@@ -222,21 +222,22 @@ class BetterPrint {
             text-decoration: underline;
             }
             .print-format{
-            width: fit-content;
-            /* scale can be applied here */
-            transform-origin: top center;
+              width: fit-content;
+              /* scale can be applied here */
+              transform-origin: top center;
             }
 
             @media print{
-            .action-banner{
+              .action-banner{
                 display: none;
-            }
-            .print-format-gutter{
-            padding: unset;
-            display: unset;
-            }
-            .print-format{
-            transform: unset;}
+              }
+              .print-format-gutter{
+                padding: unset;
+                display: unset;
+              }
+              .print-format{
+                transform: unset !important;
+              }
             }
         `;
 
