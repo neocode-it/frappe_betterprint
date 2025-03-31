@@ -243,6 +243,20 @@ class BetterPrint {
 
     document.head.appendChild(style);
 
+    // Check and adjust height
+    const contentWidth = this.printFormat.scrollWidth;
+    let scale = 1;
+    // Check actual rendered width
+    const actualParentWidth = this.printFormat.offsetWidth;
+
+    // Content larger than maxWidth of parent? scale content down
+    if (actualParentWidth < contentWidth) {
+      scale = actualParentWidth / contentWidth;
+      this.printFormat.style.transform = `scale(${scale})`;
+      // This ensures the content scales from the top-left corner
+      this.printFormat.style.transformOrigin = "0 0";
+    }
+
     this.emitFinishEvent();
 
     this.checkAndTriggerPrint();
