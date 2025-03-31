@@ -197,8 +197,8 @@ class BetterPrint {
     head.insertBefore(style, head.firstChild);
   }
 
-  afterPrintRendering(flow) {
-    console.log("Rendered", flow.total, "pages.");
+  afterPrintRendering() {
+    console.log("Rendered all pages.");
 
     document.querySelector(".action-banner").classList.remove("print-hide");
 
@@ -278,6 +278,7 @@ class BetterPrint {
   }
 
   emitFinishEvent() {
+    window.betterPrintFinished = true;
     document.dispatchEvent(
       new CustomEvent("betterPrintFinished", {
         detail: {
