@@ -181,6 +181,20 @@ class BetterPrint {
     this.printFormat.style.padding = "0";
 
     document.querySelector(".print-format-gutter").style.minHeight = "90vh";
+
+    // Insert styles with less priority
+    const style = document.createElement("style");
+    style.innerHTML = `
+    .paginatejs-pages{
+      background-color: #d1d8dd;
+      width: fit-content;
+    }
+    .page{
+      background-color: white;
+    }
+    `;
+    const head = document.head;
+    head.insertBefore(style, head.firstChild);
   }
 
   afterPrintRendering(flow) {
