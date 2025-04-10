@@ -15,13 +15,19 @@ def get_betterprint_pdf(html, options=None, output: PdfWriter | None = None):
     if not options:
         options = {}
 
+    page_size = prepare_page_size(options)
+
     pdf_file_path = os.path.abspath(f"/tmp/{frappe.generate_hash()}.pdf")
 
     html = prepare_html_for_external_use(html)
 
+    from frappe.utils import get_url
+
     body = {
         "html": html,
         "filepath": pdf_file_path,
+        # "filepath": "/home/myfile.pdf",
+        "allow_origin": get_url(),
     }
 
     body = json.dumps(body)
@@ -29,10 +35,11 @@ def get_betterprint_pdf(html, options=None, output: PdfWriter | None = None):
     betterprint_server.wait_for_ready()
 
     response = requests.get(
-        "http://192.168.1.108:3333/v1/generate-betterprint-pdf",
+        # "http://192.168.1.108:3333/v1/generate-betterprint-pdf",
+        "http://127.0.0.1:39584/v1/generate-betterprint-pdf",
         data=body,
         headers={"content-type": "application/json"},
-        timeout=15,
+        timeout=20,
     )
     if response.status_code != 200:
         frappe.throw(

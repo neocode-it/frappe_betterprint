@@ -9,6 +9,7 @@ Frappe app with advanced print functions, mainly focused on improving custom Jin
 * Individual page size per Print Format: Independent PDF size :slight_smile: 
 * Preview support for large page sizes (even A0 or larger paper size is supported)
 * Dynamic Headers & Footers: Apply different content per Page, add running numbers e.G.
+* Parallel use of regular Print Formats and Print Designer possible
 
 - **More modern pdf-generation**
 PDF-rendering based on chromium allows moderndays html ans css support and uniform prints. Simply check "Generate PDF using Frappe Betterprint" in Print Format settings. Frappe Betterprint also prevents different layouts between preview/final print layout & Style.

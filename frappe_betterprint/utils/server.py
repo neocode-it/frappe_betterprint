@@ -28,6 +28,7 @@ def wait_for_ready():
         # Repeat if the server isn't ready to accept connections yet
         for _ in range(3):
             try:
+                # response = requests.get("http://192.168.1.108:3333/v1/status")
                 response = requests.get("http://127.0.0.1:39584/v1/status")
                 if response.status_code != 200:
                     frappe.throw(

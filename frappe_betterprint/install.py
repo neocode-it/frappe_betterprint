@@ -3,7 +3,9 @@ from frappe.custom.doctype.custom_field.custom_field import create_custom_fields
 
 
 def after_install():
-    create_custom_fields(fields)
+    # ignore_validate=True is to workaround this issue of print_designer app
+    # https://github.com/frappe/print_designer/issues/430
+    create_custom_fields(fields, ignore_validate=True)
 
 
 def before_uninstall():

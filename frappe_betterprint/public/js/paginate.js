@@ -1,394 +1,1185 @@
 /*! @license Paginatejs v1.0.0 | MIT License | (C) 2025 Neocode */
-!(function (e, t) {
-  "object" == typeof exports && "object" == typeof module
-    ? (module.exports = t())
-    : "function" == typeof define && define.amd
-    ? define([], t)
-    : "object" == typeof exports
-    ? (exports.Paginate = t())
-    : (e.Paginate = t());
-})(self, () =>
-  (() => {
-    "use strict";
-    var e = {
-        d: (t, n) => {
-          for (var s in n)
-            e.o(n, s) &&
-              !e.o(t, s) &&
-              Object.defineProperty(t, s, { enumerable: !0, get: n[s] });
-        },
-        o: (e, t) => Object.prototype.hasOwnProperty.call(e, t),
-        r: (e) => {
-          "undefined" != typeof Symbol &&
-            Symbol.toStringTag &&
-            Object.defineProperty(e, Symbol.toStringTag, { value: "Module" }),
-            Object.defineProperty(e, "__esModule", { value: !0 });
-        },
-      },
-      t = {};
-    e.r(t), e.d(t, { Renderer: () => i });
-    class n {
-      constructor(e) {
-        (this.reservedKeys = ["pageNumber", "totalPages"]), (this.pages = e);
-      }
-      decorate() {
-        const e = this.#e(this.pages);
-        this.#t(e), this.#n(e);
-      }
-      #t(e) {
-        this.pages.forEach((t, n) => {
-          this.#s(t, e[n - 1], e[n], n + 1);
-        });
-      }
-      #s(e, t, n, s) {
-        if (1 == s) {
-          const t = e.content.querySelectorAll(
-            'paginate-source[data-key="header"]'
-          )[0];
-          t && (e.header.innerHTML = t.innerHTML);
-        } else {
-          const n = t[this.hash("header")];
-          n && (e.header.innerHTML = n.innerHTML);
-        }
-        const a = 1 == s ? n : t;
-        let r = e.header.querySelectorAll(
-          'paginate-target:not([data-status="solved"])'
-        );
-        for (; r.length; )
-          r.forEach((e) => {
-            const t = e.getAttribute("data-key") ?? "empty-key";
-            "pageNumber" === t || "totalPages" === t
-              ? (e.innerHTML = n[this.hash(t)]?.innerHTML ?? "")
-              : "header" !== t &&
-                (e.innerHTML = a[this.hash(t)]?.innerHTML ?? ""),
-              e.setAttribute("data-status", "solved");
-          }),
-            (r = e.header.querySelectorAll(
-              'paginate-target:not([data-status="solved"])'
-            ));
-      }
-      #n(e) {
-        this.pages.forEach((t, n) => {
-          this.#a(t, e[n]);
-        });
-      }
-      #a(e, t) {
-        const n = t[this.hash("footer")];
-        n && (e.footer.innerHTML = n.innerHTML);
-        let s = e.footer.querySelectorAll(
-          'paginate-target:not([data-status="solved"])'
-        );
-        for (; s.length; )
-          s.forEach((e) => {
-            const n = e.getAttribute("data-key") ?? "empty-key";
-            "footer" !== n && (e.innerHTML = t[this.hash(n)]?.innerHTML ?? ""),
-              e.setAttribute("data-status", "solved");
-          }),
-            (s = e.footer.querySelectorAll(
-              'paginate-target:not([data-status="solved"])'
-            ));
-      }
-      #e(e) {
-        let t = [],
-          n = {};
-        for (let s = 0; s < e.length; s++) {
-          let a = this.parseCurrentPage(e[s]);
-          (a = Object.assign({}, n, this.parseCurrentPage(e[s]))),
-            t.push(a),
-            (n = a);
-        }
-        return this.insertPageNumberReference(t), t;
-      }
-      parseCurrentPage(e) {
-        const t = e.content.querySelectorAll("paginate-source");
-        let n = {};
-        return (
-          t.forEach((e) => {
-            const t = e.getAttribute("data-key");
-            if (t && "" !== t.trim() && !this.reservedKeys.includes(t)) {
-              const s = this.hash(t);
-              n[s] = e;
+(function webpackUniversalModuleDefinition(root, factory) {
+  if (typeof exports === "object" && typeof module === "object")
+    module.exports = factory();
+  else if (typeof define === "function" && define.amd) define([], factory);
+  else if (typeof exports === "object") exports["Paginate"] = factory();
+  else root["Paginate"] = factory();
+})(self, () => {
+  return /******/ (() => {
+    // webpackBootstrap
+    /******/ "use strict";
+    /******/ var __webpack_modules__ = {
+      /***/ "./src/objects/decorator.js":
+        /*!**********************************!*\
+  !*** ./src/objects/decorator.js ***!
+  \**********************************/
+        /***/ (
+          __unused_webpack_module,
+          __webpack_exports__,
+          __webpack_require__
+        ) => {
+          __webpack_require__.r(__webpack_exports__);
+          /* harmony export */ __webpack_require__.d(__webpack_exports__, {
+            /* harmony export */ Decorator: () => /* binding */ Decorator,
+            /* harmony export */
+          });
+          /**
+           * Decorator class will decorate all pages after rendering. It's main purpose:
+           * - Parse betterprint elements
+           * - Render Header / Footer content
+           * - Add page numbers
+           */
+          class Decorator {
+            constructor(pages) {
+              this.reservedKeys = ["pageNumber", "totalPages"];
+              this.pages = pages;
             }
-          }),
-          n
-        );
-      }
-      insertPageNumberReference(e) {
-        const t = document.createElement("span");
-        t.innerHTML = e.length;
-        const n = this.hash("pageNumber"),
-          s = this.hash("totalPages");
-        for (let a = 0; a < e.length; a++) {
-          const r = document.createElement("span");
-          (r.innerHTML = a + 1), (e[a][n] = r), (e[a][s] = t);
-        }
-      }
-      hash(e) {
-        let t = 0;
-        for (let n = 0, s = e.length; n < s; n++) {
-          (t = (t << 5) - t + e.charCodeAt(n)), (t |= 0);
-        }
-        return t;
-      }
-    }
-    class s {
-      constructor(e, t, n, s = []) {
-        (this.parent = e),
-          (this.pageRange = s),
-          (this.width = t),
-          (this.height = n),
-          (this.page = this.createPage());
-      }
-      createPage() {
-        0 == this.pageRange.length && this.pageRange.push("default");
-        const e = document.createElement("div");
-        e.classList.add("page", ...this.pageRange),
-          (e.style.margin = "0"),
-          (e.style.display = "flex"),
-          (e.style.flexDirection = "column"),
-          (e.style.overflow = "hidden");
-        const t = document.createElement("div");
-        t.classList.add("header"),
-          (t.style.margin = "0"),
-          (t.style.width = "100%");
-        const n = document.createElement("div");
-        n.classList.add("content"),
-          (n.style.margin = "0"),
-          (n.style.width = "100%"),
-          (n.style.height = "unset"),
-          (n.style.flexGrow = "1");
-        const s = document.createElement("div");
-        s.classList.add("footer"),
-          (s.style.margin = "0"),
-          (s.style.width = "100%"),
-          e.append(t, n, s),
-          this.parent.appendChild(e),
-          this.calculateAndLockHeights(e, t, n, s),
-          (this.page = e),
-          (this.header = t),
-          (this.content = n),
-          (this.footer = s);
-      }
-      calculateAndLockHeights(e, t, n, s) {
-        (e.style.width = this.width + "px"),
-          (e.style.maxWidth = this.width + "px"),
-          (e.style.height = this.height + "px"),
-          (e.style.maxHeight = this.height + "px");
-        const a = t.offsetHeight;
-        (t.style.height = a + "px"), (t.style.maxHeight = a + "px");
-        const r = s.offsetHeight;
-        (s.style.height = r + "px"), (s.style.maxHeight = r + "px");
-        const i = n.offsetHeight;
-        (n.style.height = i + "px"),
-          (n.style.maxHeight = i + "px"),
-          (this.headerHeight = a),
-          (this.contentHeight = i),
-          (this.footerHeight = r);
-      }
-    }
-    class a {
-      constructor(e) {
-        this.parentElement = e;
-      }
-      preparePrintLayout() {
-        this.#r(), this.#i(), this.#o(), this.#h(), this.#l();
-      }
-      finishPrintLayout() {
-        this.#d();
-      }
-      #d() {
-        const e = this.wrapper.lastElementChild;
-        e &&
-          ((e.style.height = e.offsetHeight - 2 + "px"),
-          (e.style.maxHeight = e.style.height));
-      }
-      insertPage(e = []) {
-        return new s(this.wrapper, this.pageWidth, this.pageHeight, e);
-      }
-      #i() {
-        const e = this.parentElement.ownerDocument;
-        for (let t = e.styleSheets.length - 1; t >= 0; t--) {
-          const n = e.styleSheets[t];
-          try {
-            for (let e = n.cssRules.length - 1; e >= 0; e--)
-              n.cssRules[e].media &&
-                "print" === n.cssRules[e].media.mediaText &&
-                n.deleteRule(e);
-          } catch (e) {
-            console.warn(`Unable to access rules in stylesheet: ${n.href}`);
-          }
-        }
-        e.querySelectorAll("style").forEach((e) => {
-          const t = e.sheet;
-          try {
-            for (let e = t.cssRules.length - 1; e >= 0; e--)
-              t.cssRules[e].media &&
-                "print" === t.cssRules[e].media.mediaText &&
-                t.deleteRule(e);
-          } catch (e) {
-            console.warn("Error processing inline style element:", e);
-          }
-        });
-      }
-      #r() {
-        const e = document.createElement("div");
-        e.classList.add("paginatejs", "paginatejs-pages"),
-          this.parentElement.appendChild(e),
-          (this.wrapper = e);
-      }
-      #o() {
-        const e = document.createElement("style");
-        e.innerHTML =
-          "\n          *, ::after, ::before {\n            box-sizing: border-box;\n          }\n          paginate-source{\n            display: none;\n          }\n          .paginatejs-pages {\n            display: flex;\n            flex-direction: column;\n            gap: 0.5cm;\n          }\n          .page {\n            width: 210mm;\n            height: 297mm;\n          }\n          .page .header,\n          .page .footer {\n            width: 100%;\n            height: 2cm;\n          }\n          .page .content {\n            width: 100%;\n            height: 100%;\n          }\n          @media print {\n            .paginatejs * {\n              break-after: unset !important;\n              break-before: unset !important;\n              break-inline: unset !important;\n              page-break-after: unset !important;\n              page-break-inside: unset !important;\n              page-break-before: unset !important;\n            }\n            .paginatejs{\n              gap: 0px;\n            }\n            \n            .paginatejs .page{\n              break-after: page;\n            }\n          }\n      ";
-        const t = this.parentElement.ownerDocument;
-        t.head.insertBefore(e, t.head.firstChild);
-      }
-      #h() {
-        const e = document.createElement("div");
-        e.classList.add("page", "default"),
-          (e.style.position = "absolute"),
-          (e.style.top = "-9999px"),
-          (e.style.left = "-9999px"),
-          this.wrapper.appendChild(e);
-        const t = e.offsetHeight,
-          n = e.offsetWidth;
-        e.remove(), (this.pageHeight = t), (this.pageWidth = n);
-      }
-      #l() {
-        const e = "size: " + this.pageWidth + "px " + this.pageHeight + "px;",
-          t = document.createElement("style");
-        t.innerHTML = "@page{ " + e + " margin: 0}";
-        this.parentElement.ownerDocument.head.appendChild(t);
-      }
-    }
-    class r {
-      constructor() {
-        (this.domLevels = []), (this.target = null);
-      }
-      addToDomLevel(e) {
-        let t = [],
-          n = [];
-        "TBODY" === e.tagName && this.#c(t, e, n);
-        const s = { before: t, main: e, after: n };
-        this.domLevels.push(s);
-      }
-      #c(e, t, n) {
-        let s = t.previousElementSibling;
-        t.nextElementSibling;
-        for (; s; ) {
-          if ("THEAD" === s.tagName) {
-            if (
-              "table-header-group" ===
-              s.ownerDocument.defaultView.getComputedStyle(s).display
-            ) {
-              e.push(s);
-              break;
+            decorate() {
+              const sources = this.#parsePages(this.pages);
+              this.#renderHeader(sources);
+              this.#renderFooter(sources);
+            }
+            #renderHeader(sources) {
+              this.pages.forEach((page, i) => {
+                this.#renderPageHeader(page, sources[i - 1], sources[i], i + 1);
+              });
+            }
+            #renderPageHeader(page, prevSources, sources, pageNumber) {
+              // First page?
+              // Add first header found on page 1
+              if (pageNumber == 1) {
+                const firstHeader = page.content.querySelectorAll(
+                  'paginate-source[data-key="header"]'
+                )[0];
+                if (firstHeader) {
+                  page.header.innerHTML = firstHeader.innerHTML;
+                }
+              } else {
+                // Else add current header if any
+                const header = prevSources[this.hash("header")];
+                if (header) {
+                  page.header.innerHTML = header.innerHTML;
+                }
+              }
+
+              // If page isn't first one, set paginate source data to previous page,
+              // in order to allow the header to show past content only
+              const pageSource = pageNumber == 1 ? sources : prevSources;
+              let targets = page.header.querySelectorAll(
+                'paginate-target:not([data-status="solved"])'
+              );
+
+              // Resolve targets until there is none left
+              while (targets.length) {
+                targets.forEach((target) => {
+                  const key = target.getAttribute("data-key") ?? "empty-key";
+
+                  // Always take page numer from current page
+                  if (key === "pageNumber" || key === "totalPages") {
+                    target.innerHTML = sources[this.hash(key)]?.innerHTML ?? "";
+                  }
+                  // If key is header, this will cause a infinite loop
+                  else if (key !== "header") {
+                    target.innerHTML =
+                      pageSource[this.hash(key)]?.innerHTML ?? "";
+                  }
+                  target.setAttribute("data-status", "solved");
+                });
+                targets = page.header.querySelectorAll(
+                  'paginate-target:not([data-status="solved"])'
+                );
+              }
+            }
+            #renderFooter(sources) {
+              this.pages.forEach((page, i) => {
+                this.#renderPageFooter(page, sources[i]);
+              });
+            }
+            #renderPageFooter(page, sources) {
+              const footer = sources[this.hash("footer")];
+              if (footer) {
+                page.footer.innerHTML = footer.innerHTML;
+              }
+              let targets = page.footer.querySelectorAll(
+                'paginate-target:not([data-status="solved"])'
+              );
+
+              // Resolve targets until there is none left
+              while (targets.length) {
+                targets.forEach((target) => {
+                  const key = target.getAttribute("data-key") ?? "empty-key";
+
+                  // If key is header, this will cause a infinite loop
+                  if (key !== "footer") {
+                    target.innerHTML = sources[this.hash(key)]?.innerHTML ?? "";
+                  }
+                  target.setAttribute("data-status", "solved");
+                });
+                targets = page.footer.querySelectorAll(
+                  'paginate-target:not([data-status="solved"])'
+                );
+              }
+            }
+
+            /**
+             * Calculates the references of each page individually
+             * add default keys to the content like page numbers
+             * @param {list[Page]} pages
+             * @returns {Array referencePages}
+             */
+            #parsePages(pages) {
+              let referencePages = [];
+              let previousReferences = {};
+              for (let i = 0; i < pages.length; i++) {
+                let pagePreference = this.parseCurrentPage(pages[i]);
+
+                // add previous references to this page too
+                pagePreference = Object.assign(
+                  {},
+                  previousReferences,
+                  this.parseCurrentPage(pages[i])
+                );
+
+                // Insert page to preferences list and update previousReference for next page
+                referencePages.push(pagePreference);
+                previousReferences = pagePreference;
+              }
+              this.insertPageNumberReference(referencePages);
+              return referencePages;
+            }
+
+            /**
+             * Searches current page for source content and generates a
+             * Object of every reference. References are a hash-value of the data-key attribute
+             *
+             *
+             * @param {Element} page - Page to search for source content
+             * @returns {Object references} references
+             */
+            parseCurrentPage(page) {
+              // This will fetch all source-elements in a recursive way, starting from the beinning of the page
+              const sources = page.content.querySelectorAll("paginate-source");
+              let references = {};
+              // Let's parse the sources and overrite existing ones
+              sources.forEach((source) => {
+                // Get key of this source-element
+                const dataKey = source.getAttribute("data-key");
+
+                // Check if the key attribute exists and is not empty or reservedKey
+                if (
+                  dataKey &&
+                  dataKey.trim() !== "" &&
+                  !this.reservedKeys.includes(dataKey)
+                ) {
+                  // create hash of dataKey in oder to prevent invalid Object keys
+                  const hash = this.hash(dataKey);
+                  references[hash] = source;
+                }
+              });
+              return references;
+            }
+
+            /**
+             * Insert page number references into each page references
+             *
+             * @param {Array} references
+             * @returns {null}
+             */
+            insertPageNumberReference(referencePages) {
+              const totalPages = document.createElement("span");
+              totalPages.innerHTML = referencePages.length;
+              const pageNumberHash = this.hash("pageNumber");
+              const totalPagesHash = this.hash("totalPages");
+              for (let i = 0; i < referencePages.length; i++) {
+                const pageNumber = document.createElement("span");
+                pageNumber.innerHTML = i + 1;
+                referencePages[i][pageNumberHash] = pageNumber;
+                referencePages[i][totalPagesHash] = totalPages;
+              }
+            }
+
+            /**
+             * Returns a hash code from a string
+             * Please note: not recommended for security applications! insecure.
+             *
+             * @param  {String} str The string to hash.
+             * @return {Number}    A 32bit integer
+             * @see http://werxltd.com/wp/2010/05/13/javascript-implementation-of-javas-string-hashcode-method/
+             */
+            hash(str) {
+              let hash = 0;
+              for (let i = 0, len = str.length; i < len; i++) {
+                let chr = str.charCodeAt(i);
+                hash = (hash << 5) - hash + chr;
+                hash |= 0; // Convert to 32bit integer
+              }
+              return hash;
             }
           }
-          s = s.previousElementSibling;
-        }
-      }
-      popLevel() {
-        this.domLevels.pop();
-      }
-      renderLevels(e) {
-        let t = e.content;
-        return (
-          this.domLevels.forEach((e) => {
-            e.before.forEach((e) => {
-              t.appendChild(e.cloneNode(!0));
-            });
-            const n = e.main.cloneNode(!1);
-            t.appendChild(n),
-              e.after.forEach((e) => {
-                t.appendChild(e.cloneNode(!0));
-              }),
-              (t = n);
-          }),
-          t
-        );
-      }
-    }
-    class i {
-      constructor(e, t = document.body) {
-        (this.content = e),
-          (this.renderTo = t),
-          (this.pages = []),
-          (this.targetParent = this.page),
-          (this.parentList = []),
-          (this.domLevelHandler = new r());
-      }
-      prepareTarget(e) {
-        (this.layoutManager = new a(e)),
-          this.layoutManager.preparePrintLayout(),
-          (this.renderTo = this.layoutManager.wrapper),
-          this.newPage();
-      }
-      render() {
-        !(async function (e = document) {
-          for (; "complete" !== e.readyState; )
-            await new Promise((e) =>
-              document.defaultView.addEventListener("load", e, { once: !0 })
-            );
-        })(this.content.ownerDocument),
-          this.prepareTarget(this.renderTo),
-          this.processContent(),
-          this.layoutManager.finishPrintLayout(),
-          new n(this.pages).decorate();
-      }
-      processContent(e = this.content) {
-        for (let t = 0; t < e.childNodes.length; t++) {
-          const n = e.childNodes[t];
-          let s = !1,
-            a = !1,
-            r = !1;
-          if (n.nodeType === Node.ELEMENT_NODE) {
-            const e = n.ownerDocument.defaultView.getComputedStyle(n);
-            (a = "page" === e.breakBefore),
-              (s = "avoid" === e.breakInside),
-              (r = "page" === e.breakAfter);
-          }
-          if ((a && this.newPage(), n.hasChildNodes() && !s)) {
-            let e = n.cloneNode(!1);
-            this.targetParent.appendChild(e),
-              (this.targetParent = e),
-              this.domLevelHandler.addToDomLevel(n),
-              this.processContent(n),
-              this.domLevelHandler.popLevel(),
-              (this.targetParent = this.targetParent.parentNode),
-              e.hasChildNodes() || e.remove();
-          } else {
-            if (this.insertAndCheckNode(n) > this.currentPage.contentHeight) {
-              this.removeLastChildNode(),
-                this.newPage(),
-                this.insertAndCheckNode(n) > this.currentPage.contentHeight &&
-                  console.log(
-                    "Element cannot be rendered to page, does overflow by itself..." +
-                      n.textContent
+
+          /***/
+        },
+
+      /***/ "./src/objects/documentlayoutmanager.js":
+        /*!**********************************************!*\
+  !*** ./src/objects/documentlayoutmanager.js ***!
+  \**********************************************/
+        /***/ (
+          __unused_webpack_module,
+          __webpack_exports__,
+          __webpack_require__
+        ) => {
+          __webpack_require__.r(__webpack_exports__);
+          /* harmony export */ __webpack_require__.d(__webpack_exports__, {
+            /* harmony export */ DocumentLayoutManager: () =>
+              /* binding */ DocumentLayoutManager,
+            /* harmony export */
+          });
+          /* harmony import */ var _page_js__WEBPACK_IMPORTED_MODULE_0__ =
+            __webpack_require__(/*! ./page.js */ "./src/objects/page.js");
+
+          /**
+           * DocumentLayoutManager is responsible for general tasks such as:
+           * - Generate base wrapper for paginate.js pages
+           * - Insert base css required for paginate.js
+           * - Add media print settings for paginate.js
+           * - Responsible to calculate and create new pages with preset layout (size & style)
+           */
+          class DocumentLayoutManager {
+            constructor(parentElement) {
+              this.parentElement = parentElement;
+            }
+            preparePrintLayout() {
+              this.#addPrintWrapper();
+              this.#removeMediaPrintRules();
+              this.#addBasePrintStyles();
+              this.#determinePageDimensions();
+              this.#setPrintPageSize();
+            }
+            finishPrintLayout() {
+              this.#adjustLastPage();
+            }
+            #adjustLastPage() {
+              const lastPage = this.wrapper.lastElementChild;
+              if (!lastPage) return;
+              lastPage.style.height = lastPage.offsetHeight - 2 + "px";
+              lastPage.style.maxHeight = lastPage.style.height;
+            }
+
+            /**
+             * Adds new page to the page wrapper
+             *
+             * @returns {Page} - new Page object
+             */
+            insertPage(pageRange = []) {
+              return new _page_js__WEBPACK_IMPORTED_MODULE_0__.Page(
+                this.wrapper,
+                this.pageWidth,
+                this.pageHeight,
+                pageRange
+              );
+            }
+
+            /**
+             * Will make sure all referenced css files will be accessible.
+             *
+             * In case of missing access (e.g. CORS preventing JS to read rules), this method
+             * will fetch the stylesheet manually and replace it inline.
+             */
+            #ensureCssAccess() {
+              const targetDocument = this.parentElement.ownerDocument;
+              targetDocument
+                .querySelectorAll('link[rel="stylesheet"]')
+                .forEach((link) => {
+                  const sheet = [...document.styleSheets].find(
+                    (s) => s.href === link.href
                   );
+                  try {
+                    sheet.cssRules; // Attempt to access cssRules
+                    return; // Skip this stylesheet since read access is available
+                  } catch {}
+                  try {
+                    // Fetch the CSS content synchronously using XMLHttpRequest
+                    const xhr = new XMLHttpRequest();
+                    xhr.open("GET", link.href, false);
+                    xhr.send();
+                    if (xhr.status === 200) {
+                      const style = document.createElement("style");
+                      style.textContent = xhr.responseText;
+                      link.replaceWith(style); // Replace <link> with <style>
+                    } else {
+                      console.error(
+                        `Failed to fetch ${link.href}: HTTP ${xhr.status}`
+                      );
+                    }
+                  } catch (error) {
+                    console.error(
+                      `Network/Browser error while fetching ${link.href}, some rules won't be applied: `,
+                      error
+                    );
+                  }
+                });
+            }
+            #removeMediaPrintRules() {
+              this.#ensureCssAccess();
+              const targetDocument = this.parentElement.ownerDocument;
+              // Prevent @media print rules
+              // Loop through all style sheets
+              for (let i = targetDocument.styleSheets.length - 1; i >= 0; i--) {
+                const styleSheet = targetDocument.styleSheets[i];
+                try {
+                  // Loop through the CSS rules in the stylesheet
+                  for (let j = styleSheet.cssRules.length - 1; j >= 0; j--) {
+                    if (
+                      styleSheet.cssRules[j].media &&
+                      styleSheet.cssRules[j].media.mediaText === "print"
+                    ) {
+                      styleSheet.deleteRule(j);
+                    }
+                  }
+                } catch (e) {
+                  // Catch SecurityError for cross-origin stylesheets
+                  console.error(
+                    `Unable to access rules in stylesheet: ${styleSheet.href}`
+                  );
+                }
+              }
+
+              // Handle inline styles
+              targetDocument
+                .querySelectorAll("style")
+                .forEach((styleElement) => {
+                  const sheet = styleElement.sheet;
+                  try {
+                    for (let k = sheet.cssRules.length - 1; k >= 0; k--) {
+                      if (
+                        sheet.cssRules[k].media &&
+                        sheet.cssRules[k].media.mediaText === "print"
+                      ) {
+                        sheet.deleteRule(k);
+                      }
+                    }
+                  } catch (e) {
+                    console.warn("Error processing inline style element:", e);
+                  }
+                });
+            }
+            #addPrintWrapper() {
+              const wrapper = document.createElement("div");
+              wrapper.classList.add("paginatejs", "paginatejs-pages");
+              this.parentElement.appendChild(wrapper);
+              this.wrapper = wrapper;
+            }
+            #addBasePrintStyles() {
+              const style = document.createElement("style");
+              style.innerHTML = `
+          *, ::after, ::before {
+            box-sizing: border-box;
+          }
+          paginate-source{
+            display: none;
+          }
+          .paginatejs-pages {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5cm;
+          }
+          .page {
+            width: 210mm;
+            height: 297mm;
+          }
+          .page .header,
+          .page .footer {
+            width: 100%;
+            height: 2cm;
+          }
+          .page .content {
+            width: 100%;
+            height: 100%;
+          }
+          @media print {
+            .paginatejs * {
+              break-after: unset !important;
+              break-before: unset !important;
+              break-inline: unset !important;
+              page-break-after: unset !important;
+              page-break-inside: unset !important;
+              page-break-before: unset !important;
+            }
+            .paginatejs{
+              gap: 0px;
+            }
+            
+            .paginatejs .page{
+              break-after: page;
             }
           }
-          r && this.newPage();
-        }
+      `;
+              const targetDocument = this.parentElement.ownerDocument;
+              targetDocument.head.insertBefore(
+                style,
+                targetDocument.head.firstChild
+              );
+            }
+            #determinePageDimensions() {
+              const offPage = document.createElement("div");
+              offPage.classList.add("page", "default");
+              offPage.style.position = "absolute";
+              offPage.style.top = "-9999px";
+              offPage.style.left = "-9999px";
+              this.wrapper.appendChild(offPage);
+              const height = offPage.offsetHeight;
+              const width = offPage.offsetWidth;
+              offPage.remove();
+              this.pageHeight = height;
+              this.pageWidth = width;
+            }
+            #setPrintPageSize() {
+              const size =
+                "size: " + this.pageWidth + "px " + this.pageHeight + "px;";
+              const style = document.createElement("style");
+              style.innerHTML = "@page{ " + size + " margin: 0}";
+              const targetDocument = this.parentElement.ownerDocument;
+              targetDocument.head.appendChild(style);
+            }
+          }
+
+          /***/
+        },
+
+      /***/ "./src/objects/domlevelhandler.js":
+        /*!****************************************!*\
+  !*** ./src/objects/domlevelhandler.js ***!
+  \****************************************/
+        /***/ (
+          __unused_webpack_module,
+          __webpack_exports__,
+          __webpack_require__
+        ) => {
+          __webpack_require__.r(__webpack_exports__);
+          /* harmony export */ __webpack_require__.d(__webpack_exports__, {
+            /* harmony export */ DomLevelHandler: () =>
+              /* binding */ DomLevelHandler,
+            /* harmony export */
+          });
+          class DomLevelHandler {
+            constructor() {
+              this.domLevels = [];
+              this.target = null;
+            }
+            addToDomLevel(element) {
+              let before = [];
+              let after = [];
+
+              // Add table header & footer as element too if required
+              if (element.tagName === "TBODY") {
+                this.#handleTables(before, element, after);
+              }
+              const level = {
+                before: before,
+                main: element,
+                after: after,
+              };
+              this.domLevels.push(level);
+            }
+            #handleTables(before, element, after) {
+              let prevSibling = element.previousElementSibling;
+              let nextSibling = element.nextElementSibling;
+
+              // Check for thead
+              while (prevSibling) {
+                if (prevSibling.tagName === "THEAD") {
+                  var win = prevSibling.ownerDocument.defaultView;
+                  const style = win.getComputedStyle(prevSibling);
+                  if (style.display === "table-header-group") {
+                    before.push(prevSibling);
+                    break;
+                  }
+                }
+                // Move to the next previous sibling
+                prevSibling = prevSibling.previousElementSibling;
+              }
+
+              // TFOOT is not working yet, since it should be added on the current page already...
+              // really special case here
+
+              // // Check for tfoot
+              // while (nextSibling) {
+              //   if (nextSibling.tagName === "TFOOT") {
+              //     const style = window.getComputedStyle(nextSibling);
+
+              //     if (style.display === "table-footer-group") {
+              //       after.push(nextSibling); // Add the tfoot element to the 'after' array
+              //       break; // Exit the loop once the desired tfoot is found
+              //     }
+              //   }
+              //   // Move to the next sibling
+              //   nextSibling = nextSibling.nextElementSibling;
+              // }
+            }
+            popLevel() {
+              this.domLevels.pop();
+            }
+            renderLevels(page) {
+              let target = page.content;
+              this.domLevels.forEach((level) => {
+                level.before.forEach((beforeElement) => {
+                  target.appendChild(beforeElement.cloneNode(true));
+                });
+                const newTarget = level.main.cloneNode(false);
+                target.appendChild(newTarget);
+                level.after.forEach((afterElement) => {
+                  target.appendChild(afterElement.cloneNode(true));
+                });
+                target = newTarget;
+              });
+              return target;
+            }
+          }
+
+          /***/
+        },
+
+      /***/ "./src/objects/page.js":
+        /*!*****************************!*\
+  !*** ./src/objects/page.js ***!
+  \*****************************/
+        /***/ (
+          __unused_webpack_module,
+          __webpack_exports__,
+          __webpack_require__
+        ) => {
+          __webpack_require__.r(__webpack_exports__);
+          /* harmony export */ __webpack_require__.d(__webpack_exports__, {
+            /* harmony export */ Page: () => /* binding */ Page,
+            /* harmony export */
+          });
+          class Page {
+            /**
+             * Creates a new page inside parent
+             *
+             * @param {HTMLElement} parent - Paginatejs wrapper
+             * @param {int} pageWidth - Page width in px
+             * @param {int} pageHeight - Page width in px
+             * @param {string[]} [pageRange] - Current page range
+             */
+            constructor(parent, pageWidth, pageHeight, pageRange = []) {
+              this.parent = parent;
+              this.pageRange = pageRange;
+              this.width = pageWidth;
+              this.height = pageHeight;
+              this.page = this.createPage();
+            }
+
+            /**
+             * Creates an empty, new page element
+             *
+             * @returns {null}
+             */
+            createPage() {
+              if (this.pageRange.length == 0) {
+                this.pageRange.push("default");
+              }
+              const page = document.createElement("div");
+              page.classList.add("page", ...this.pageRange);
+              page.style.margin = "0";
+              page.style.display = "flex";
+              page.style.flexDirection = "column";
+              page.style.overflow = "hidden";
+              const header = document.createElement("div");
+              header.classList.add("header");
+              header.style.margin = "0";
+              header.style.width = "100%";
+              const content = document.createElement("div");
+              content.classList.add("content");
+              content.style.margin = "0";
+              content.style.width = "100%";
+              content.style.height = "unset";
+              content.style.flexGrow = "1";
+              const footer = document.createElement("div");
+              footer.classList.add("footer");
+              footer.style.margin = "0";
+              footer.style.width = "100%";
+              page.append(header, content, footer);
+              this.parent.appendChild(page);
+
+              // Set height explicitly in order to avoid accidental
+              // changes after content has been added
+              this.calculateAndLockHeights(page, header, content, footer);
+              this.page = page;
+              this.header = header;
+              this.content = content;
+              this.footer = footer;
+            }
+
+            /**
+             * Calculates & locks the page heights of header, content and footer
+             * in order to prevent accidental changes after content has been added
+             *
+             * @param {HTMLElement} page - The (empty) rendered page
+             * @param {HTMLElement} header - The (empty) header element of the page
+             * @param {HTMLElement} conten - The (empty) content element of the page
+             * @param {HTMLElement} footer - The (empty) footer element of the page
+             *
+             * @returns {null}
+             */
+            calculateAndLockHeights(page, header, content, footer) {
+              // const [pageWidth, pageHeight] = this.determinePagedimensions();
+
+              page.style.width = this.width + "px";
+              page.style.maxWidth = this.width + "px";
+              page.style.height = this.height + "px";
+              page.style.maxHeight = this.height + "px";
+              const headerHeight = header.offsetHeight;
+              header.style.height = headerHeight + "px";
+              header.style.maxHeight = headerHeight + "px";
+              const footerHeight = footer.offsetHeight;
+              footer.style.height = footerHeight + "px";
+              footer.style.maxHeight = footerHeight + "px";
+              const contentHeight = content.offsetHeight;
+              content.style.height = contentHeight + "px";
+              content.style.maxHeight = contentHeight + "px";
+              this.headerHeight = headerHeight;
+              this.contentHeight = contentHeight;
+              this.footerHeight = footerHeight;
+            }
+          }
+
+          // getPageSize() {
+          //   for (let stylesheet of document.styleSheets) {
+          //     try {
+          //       // Loop through the rules in the stylesheet
+          //       for (let rule of stylesheet.cssRules) {
+          //         // Check if the rule is an instance of CSSPageRule
+          //
+          //         // important: instanceof can't be used here (won't work in iframes)
+          //         if (rule instanceof CSSPageRule) {
+          //           // Extract the size property from the rule's style
+          //           let size = rule.style.getPropertyValue("size");
+          //           if (size) {
+          //             console.log(`Pagesize: ${size}`);
+          //             this.ensureValidPagesize(size);
+          //             return size;
+          //           }
+          //         }
+          //       }
+          //     } catch (e) {
+          //       // Handle potential cross-origin access errors
+          //       console.warn(`Cannot access stylesheet: ${stylesheet.href}`, e);
+          //     }
+          //   }
+          // }
+
+          // /**
+          //  * Returns valid pagesize or A4 pagesize if invalid.
+          //  * @param {String} pagesize
+          //  * @returns {width, height}
+          //  */
+          // ensureValidPagesize(pagesize) {
+          //   //predefined page sizes in mm
+          //   const presetSize = {
+          //     A0: { height: 1189, width: 841 },
+          //     A1: { height: 841, width: 594 },
+          //     A2: { height: 594, width: 420 },
+          //     A3: { height: 420, width: 297 },
+          //     A4: { height: 297, width: 210 },
+          //     A5: { height: 210, width: 148 },
+          //     A6: { height: 148, width: 105 },
+          //     A7: { height: 105, width: 74 },
+          //     A8: { height: 74, width: 52 },
+          //     A9: { height: 52, width: 37 },
+          //     B0: { height: 1414, width: 1000 },
+          //     B1: { height: 1000, width: 707 },
+          //     B2: { height: 707, width: 500 },
+          //     B3: { height: 500, width: 353 },
+          //     B4: { height: 353, width: 250 },
+          //     B5: { height: 250, width: 176 },
+          //     B6: { height: 176, width: 125 },
+          //     B7: { height: 125, width: 88 },
+          //     B8: { height: 88, width: 62 },
+          //     B9: { height: 62, width: 44 },
+          //     B10: { height: 44, width: 31 },
+          //     C5E: { height: 229, width: 163 },
+          //     Comm10E: { height: 241, width: 105 },
+          //     DLE: { height: 220, width: 110 },
+          //     Executive: { height: 254, width: 291 },
+          //     Folio: { height: 330, width: 210 },
+          //     Ledger: { height: 432, width: 279 },
+          //     Legal: { height: 356, width: 216 },
+          //     Letter: { height: 279, width: 216 },
+          //     Tabloid: { height: 432, width: 279 },
+          //   };
+          //   const customSizeRegex = /^\d+(\.\d+)?(cm|mm|in|px|pt|pc)$/;
+          //   const words = pagesize.split(/\s+/);
+
+          //   if (words.length == 0)
+          //     presetSize["A4"].width + "mm", presetSize["A4"].height + "mm";
+
+          //   // is valid orientation?
+          //   let orientation = "portrait";
+          //   if (words[words.length - 1].match(/\b(landscape|portrait)\b/i)) {
+          //     orientation = words[words.length - 1];
+          //     // remove orientation setting
+          //     words.pop();
+          //   }
+
+          //   // preset Page size or empty
+          //   if (
+          //     (words.length == 1 || words.length == 2) &&
+          //     presetSize.hasOwnProperty(words[0])
+          //   ) {
+          //     presetSize["A4"].width + "mm", presetSize["A4"].height + "mm";
+
+          //     if (words.length == 2) {
+          //       width = presetSize[words[0]].height;
+          //       height = presetSize[words[0]].width;
+          //     } else {
+          //       width = presetSize[words[0]].width;
+          //       height = presetSize[words[0]].height;
+          //     }
+          //     return width, height;
+          //   }
+
+          //   // 1 dimensional valid size?
+          //   if (words.length == 0 && words[0].match(customSizeRegex)) {
+          //     return words[0], words[0];
+          //   }
+
+          //   if (
+          //     words.length == 2 &&
+          //     words[0].match(customSizeRegex) &&
+          //     words[1].match(customSizeRegex)
+          //   ) {
+          //     if (orientation === "landscape") {
+          //       words[0];
+          //     } else {
+          //       width = presetSize[words[0]].width;
+          //       height = presetSize[words[0]].height;
+          //     }
+          //     return width, height;
+          //   }
+          //   if (words.length > 0 && words[0].match(customSizeRegex)) {
+          //     // Is there at least one valid custom size defined?
+          //     // Check if there's a second size
+          //     if (words.length == 2 && words[1].match(customSizeRegex)) {
+          //     }
+          //   }
+          // }
+
+          /***/
+        },
+
+      /***/ "./src/objects/renderer.js":
+        /*!*********************************!*\
+  !*** ./src/objects/renderer.js ***!
+  \*********************************/
+        /***/ (
+          __unused_webpack_module,
+          __webpack_exports__,
+          __webpack_require__
+        ) => {
+          __webpack_require__.r(__webpack_exports__);
+          /* harmony export */ __webpack_require__.d(__webpack_exports__, {
+            /* harmony export */ Renderer: () => /* binding */ Renderer,
+            /* harmony export */
+          });
+          /* harmony import */ var _decorator__WEBPACK_IMPORTED_MODULE_0__ =
+            __webpack_require__(
+              /*! ./decorator */ "./src/objects/decorator.js"
+            );
+          /* harmony import */ var _documentlayoutmanager__WEBPACK_IMPORTED_MODULE_1__ =
+            __webpack_require__(
+              /*! ./documentlayoutmanager */ "./src/objects/documentlayoutmanager.js"
+            );
+          /* harmony import */ var _page__WEBPACK_IMPORTED_MODULE_2__ =
+            __webpack_require__(/*! ./page */ "./src/objects/page.js");
+          /* harmony import */ var _skeleton__WEBPACK_IMPORTED_MODULE_3__ =
+            __webpack_require__(/*! ./skeleton */ "./src/objects/skeleton.js");
+          /* harmony import */ var _utils_waitForRessources__WEBPACK_IMPORTED_MODULE_4__ =
+            __webpack_require__(
+              /*! ../utils/waitForRessources */ "./src/utils/waitForRessources.js"
+            );
+          /* harmony import */ var _domlevelhandler__WEBPACK_IMPORTED_MODULE_5__ =
+            __webpack_require__(
+              /*! ./domlevelhandler */ "./src/objects/domlevelhandler.js"
+            );
+
+          class Renderer {
+            constructor(content, renderTo = document.body) {
+              this.content = content;
+              this.renderTo = renderTo;
+              this.pages = [];
+
+              // Current page targetElement to copy nodes into
+              this.targetParent = this.page;
+              // Dom depth which will be added in case of a page-break
+              this.parentList = [];
+              this.domLevelHandler =
+                new _domlevelhandler__WEBPACK_IMPORTED_MODULE_5__.DomLevelHandler();
+
+              // this.prepareTarget(renderTo);
+              // this.newPage();
+            }
+            prepareTarget(renderTo) {
+              this.layoutManager =
+                new _documentlayoutmanager__WEBPACK_IMPORTED_MODULE_1__.DocumentLayoutManager(
+                  renderTo
+                );
+
+              // Insert wrapper and base styles
+              this.layoutManager.preparePrintLayout();
+              this.renderTo = this.layoutManager.wrapper;
+
+              // Add first page
+              this.newPage();
+            }
+            render() {
+              (0,
+              _utils_waitForRessources__WEBPACK_IMPORTED_MODULE_4__.waitForResourcesReady)(
+                this.content.ownerDocument
+              );
+              this.prepareTarget(this.renderTo);
+              this.processContent();
+              this.layoutManager.finishPrintLayout();
+              new _decorator__WEBPACK_IMPORTED_MODULE_0__.Decorator(
+                this.pages
+              ).decorate();
+            }
+
+            /**
+             * Processes the content of parent as a recursive function and distrubutes the content throughout all pages
+             *
+             * @param {Node} parentNode - parent of the current depth which will be processed into pages
+             * @returns {null}
+             */
+            processContent(parentNode = this.content) {
+              // iterate through all direct children
+              for (let i = 0; i < parentNode.childNodes.length; i++) {
+                const node = parentNode.childNodes[i];
+                let avoidBreakInside = false;
+                let breakBefore = false;
+                let breakAfter = false;
+
+                // important: instanceof can't be used here (won't work in iframes)
+                if (node.nodeType === Node.ELEMENT_NODE) {
+                  var win = node.ownerDocument.defaultView;
+                  const style = win.getComputedStyle(node);
+                  breakBefore = style.breakBefore === "page";
+                  avoidBreakInside = style.breakInside === "avoid";
+                  breakAfter = style.breakAfter === "page";
+                }
+                if (breakBefore) {
+                  this.newPage();
+                }
+                if (node.hasChildNodes() && !avoidBreakInside) {
+                  // increse current dom depth
+                  // Add node shallow again
+                  let newParent = node.cloneNode(false);
+                  this.targetParent.appendChild(newParent);
+                  this.targetParent = newParent;
+                  // this.parentList.push(node);
+                  this.domLevelHandler.addToDomLevel(node);
+                  this.processContent(node);
+
+                  // remove current dom depth
+                  this.domLevelHandler.popLevel();
+                  // this.parentList.pop();
+                  this.targetParent = this.targetParent.parentNode;
+
+                  // In case there is none, There has been a page-break and the children are on the new page.
+                  // -> No need to render the (empty) wrapping parent in this case then..
+                  if (!newParent.hasChildNodes()) {
+                    newParent.remove();
+                  }
+                } else {
+                  let height = this.insertAndCheckNode(node);
+                  if (height > this.currentPage.contentHeight) {
+                    // Remove overflowing node
+                    this.removeLastChildNode();
+
+                    // There's no further way to break down the children, we create a Break page
+                    this.newPage();
+
+                    // Re-insert this node
+                    let height = this.insertAndCheckNode(node);
+
+                    // Still overflowing? Element can't be broken even more... MAYDAY :)
+                    if (height > this.currentPage.contentHeight) {
+                      console.log(
+                        "Element cannot be rendered to page, does overflow by itself..." +
+                          node.textContent
+                      );
+                    }
+                  }
+                }
+                if (breakAfter) {
+                  this.newPage();
+                }
+              }
+            }
+            insertAndCheckNode(node) {
+              this.targetParent.appendChild(node.cloneNode(true));
+              return this.currentPage.content.scrollHeight;
+            }
+            newPage() {
+              const page = this.layoutManager.insertPage();
+              this.pages.push(page);
+              this.currentPage = page;
+
+              // Create current domtree
+              this.targetParent = this.currentPage.content;
+              this.targetParent = this.domLevelHandler.renderLevels(page);
+
+              // this.parentList.forEach((node) => {
+              //   let newNode = node.cloneNode(false);
+              //   this.targetParent.appendChild(newNode);
+              //   this.targetParent = newNode;
+              // });
+            }
+            removeLastChildNode() {
+              if (this.targetParent.lastChild) {
+                // Removes the last child, including text nodes
+                this.targetParent.removeChild(this.targetParent.lastChild);
+              }
+            }
+          }
+
+          /***/
+        },
+
+      /***/ "./src/objects/skeleton.js":
+        /*!*********************************!*\
+  !*** ./src/objects/skeleton.js ***!
+  \*********************************/
+        /***/ (
+          __unused_webpack_module,
+          __webpack_exports__,
+          __webpack_require__
+        ) => {
+          __webpack_require__.r(__webpack_exports__);
+          /* harmony export */ __webpack_require__.d(__webpack_exports__, {
+            /* harmony export */ Skeleton: () => /* binding */ Skeleton,
+            /* harmony export */
+          });
+          /**
+           * PaginateWrapper is responsible for general tasks such as:
+           * - Generate base wrapper for paginate.js pages
+           * - Insert base css required for paginate.js
+           * - Add media print settings for paginate.js
+           */
+          class Skeleton {
+            constructor(renderTo) {
+              this.renderTo = renderTo;
+            }
+            insertPageWrapper() {
+              const wrapper = document.createElement("div");
+              wrapper.classList.add("paginatejs", "paginatejs-pages");
+              return wrapper;
+            }
+            calculatePageSize() {}
+
+            /** Possible approach:
+             * - AddPageWrapper will calculate page dimensions
+             * - And insert media rules too at the end of the header
+             * - New pages will be required to add throughout skeleton class
+             *
+             * Approach two:
+             * - Renderer is tightly bound to skeleton and will calculate e.g. all throughout skeleton
+             *
+             * Add layoutAnalyzer or StyleResolver, which will analyze the layout
+             */
+
+            static getBaseStyleElement() {
+              const style = document.createElement("style");
+              style.innerHTML = `
+          *, ::after, ::before {
+            box-sizing: border-box;
+          }
+          .paginatejs-pages {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5cm;
+          }
+          .page {
+            width: 210mm;
+            height: 297mm;
+          }
+          .page .header,
+          .page .footer {
+            width: 100%;
+            height: 2cm;
+          }
+          .page .content {
+            width: 100%;
+            height: 100%;
+          }
+          @media print {
+            .paginatejs * {
+              break-after: unset !important;
+              break-before: unset !important;
+              break-inline: unset !important;
+            }
+            .paginatejs{
+              gap: 0px;
+            }
+          }
+        `;
+              return style;
+            }
+
+            /**
+             *
+             * @param {string} pageWidth - Page width
+             * @param {string} pageHeight - Page height
+             * @param {HTMLElement} pageWrapper - Paginate.jd page wrapper Element
+             *
+             * @returns {HTMLElement} mediaStyles
+             */
+            static getPrintMediaStyles(pageWidth, pageHeight, pageWrapper) {}
+            static getPagesWrapper() {
+              const wrapper = document.createElement("div");
+              wrapper.classList.add("paginatejs", "paginatejs-pages");
+              return wrapper;
+            }
+          }
+
+          /***/
+        },
+
+      /***/ "./src/utils/waitForRessources.js":
+        /*!****************************************!*\
+  !*** ./src/utils/waitForRessources.js ***!
+  \****************************************/
+        /***/ (
+          __unused_webpack_module,
+          __webpack_exports__,
+          __webpack_require__
+        ) => {
+          __webpack_require__.r(__webpack_exports__);
+          /* harmony export */ __webpack_require__.d(__webpack_exports__, {
+            /* harmony export */ waitForResourcesReady: () =>
+              /* binding */ waitForResourcesReady,
+            /* harmony export */
+          });
+          /**
+           * Waits for all resources (images, etc.) to be fully loaded.
+           */
+          async function waitForResourcesReady(doc = document) {
+            while (doc.readyState !== "complete") {
+              await new Promise((resolve) =>
+                // must be made iframe-save
+                document.defaultView.addEventListener("load", resolve, {
+                  once: true,
+                })
+              );
+            }
+          }
+
+          /***/
+        },
+
+      /******/
+    };
+    /************************************************************************/
+    /******/ // The module cache
+    /******/ var __webpack_module_cache__ = {};
+    /******/
+    /******/ // The require function
+    /******/ function __webpack_require__(moduleId) {
+      /******/ // Check if module is in cache
+      /******/ var cachedModule = __webpack_module_cache__[moduleId];
+      /******/ if (cachedModule !== undefined) {
+        /******/ return cachedModule.exports;
+        /******/
       }
-      insertAndCheckNode(e) {
-        return (
-          this.targetParent.appendChild(e.cloneNode(!0)),
-          this.currentPage.content.scrollHeight
-        );
-      }
-      newPage() {
-        const e = this.layoutManager.insertPage();
-        this.pages.push(e),
-          (this.currentPage = e),
-          (this.targetParent = this.currentPage.content),
-          (this.targetParent = this.domLevelHandler.renderLevels(e));
-      }
-      removeLastChildNode() {
-        this.targetParent.lastChild &&
-          this.targetParent.removeChild(this.targetParent.lastChild);
-      }
+      /******/ // Create a new module (and put it into the cache)
+      /******/ var module = (__webpack_module_cache__[moduleId] = {
+        /******/ // no module.id needed
+        /******/ // no module.loaded needed
+        /******/ exports: {},
+        /******/
+      });
+      /******/
+      /******/ // Execute the module function
+      /******/ __webpack_modules__[moduleId](
+        module,
+        module.exports,
+        __webpack_require__
+      );
+      /******/
+      /******/ // Return the exports of the module
+      /******/ return module.exports;
+      /******/
     }
-    return t;
-  })()
-);
+    /******/
+    /************************************************************************/
+    /******/ /* webpack/runtime/define property getters */
+    /******/ (() => {
+      /******/ // define getter functions for harmony exports
+      /******/ __webpack_require__.d = (exports, definition) => {
+        /******/ for (var key in definition) {
+          /******/ if (
+            __webpack_require__.o(definition, key) &&
+            !__webpack_require__.o(exports, key)
+          ) {
+            /******/ Object.defineProperty(exports, key, {
+              enumerable: true,
+              get: definition[key],
+            });
+            /******/
+          }
+          /******/
+        }
+        /******/
+      };
+      /******/
+    })();
+    /******/
+    /******/ /* webpack/runtime/hasOwnProperty shorthand */
+    /******/ (() => {
+      /******/ __webpack_require__.o = (obj, prop) =>
+        Object.prototype.hasOwnProperty.call(obj, prop);
+      /******/
+    })();
+    /******/
+    /******/ /* webpack/runtime/make namespace object */
+    /******/ (() => {
+      /******/ // define __esModule on exports
+      /******/ __webpack_require__.r = (exports) => {
+        /******/ if (typeof Symbol !== "undefined" && Symbol.toStringTag) {
+          /******/ Object.defineProperty(exports, Symbol.toStringTag, {
+            value: "Module",
+          });
+          /******/
+        }
+        /******/ Object.defineProperty(exports, "__esModule", { value: true });
+        /******/
+      };
+      /******/
+    })();
+    /******/
+    /************************************************************************/
+    var __webpack_exports__ = {};
+    // This entry needs to be wrapped in an IIFE because it needs to be isolated against other modules in the chunk.
+    (() => {
+      /*!**********************!*\
+  !*** ./src/index.js ***!
+  \**********************/
+      __webpack_require__.r(__webpack_exports__);
+      /* harmony export */ __webpack_require__.d(__webpack_exports__, {
+        /* harmony export */ Renderer: () =>
+          /* reexport safe */ _objects_renderer_js__WEBPACK_IMPORTED_MODULE_0__.Renderer,
+        /* harmony export */
+      });
+      /* harmony import */ var _objects_renderer_js__WEBPACK_IMPORTED_MODULE_0__ =
+        __webpack_require__(
+          /*! ./objects/renderer.js */ "./src/objects/renderer.js"
+        );
+    })();
+
+    /******/ return __webpack_exports__;
+    /******/
+  })();
+});
+//# sourceMappingURL=paginate.js.map
