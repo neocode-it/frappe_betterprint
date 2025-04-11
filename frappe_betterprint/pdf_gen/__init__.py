@@ -10,6 +10,11 @@ from pypdf import PdfReader, PdfWriter
 
 def get_betterprint_pdf(html, options=None, output: PdfWriter | None = None):
     """Will generate betterprint pdf file using chrome"""
+
+    from frappe_betterprint.browser import Browser
+
+    gg = Browser()
+    frappe.throw(gg.uuid())
     betterprint_server.prelaunch_server()
 
     if not options:
