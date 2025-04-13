@@ -1,8 +1,10 @@
 # Frappe Betterprint
 
-Frappe app with advanced print functions, mainly focused on improving custom Jinja print formats. This app depends on [betterprint_server](https://github.com/neocode-it/frappe_betterprint_server) in order to generate pdf's.
+### THIS APP IS NOT PRODUCTION-READY YET. FINAL ALPHA WILL BE IN THE WEEK OF 14th APRIL. STAY TUNED.
 
-## Main Features
+Frappe app with advanced print functions, mainly focused on improving custom Jinja print formats.
+
+## Potential Features
 
 * Universal Layout: Preview/Printview/PDF - they look just the same.
 * Modern CSS support: Flexbox, W3C standards - all printed with headless Chromium.
@@ -20,9 +22,6 @@ Select individual pdf page size per Print Format: Enable Betterprint within prin
 Jinja method to display a visible page break in preview, and actual page break in prints.
 - **Preview support for pages larger than A4**
 Betterprint formats larger than A4 (up to A0 and more) can be displayed in a scaled format in the preview and even on the public-share-link page.
-
-## Experimental Features
-
 - **`split_table_by_height(html, style, max_height)` Jinja method"** 
 Jinja method to split table into pages by calculating the (actual) rendered height per page.
 
