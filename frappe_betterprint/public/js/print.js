@@ -202,10 +202,6 @@ class BetterPrint {
 
     document.querySelector(".action-banner").classList.remove("print-hide");
 
-    document.addEventListener("DOMContentLoaded", function () {
-      console.log("again");
-    });
-
     let style = document.createElement("style");
     style.textContent = `
             .print-format-gutter{
