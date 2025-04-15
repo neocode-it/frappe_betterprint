@@ -1,9 +1,16 @@
 import frappe
+
 from frappe.custom.doctype.custom_field.custom_field import create_custom_fields
+
+from frappe_betterprint.pdf_gen.setup_browser import install_playwright_browsers
 
 
 def after_install():
-    create_custom_fields(fields)
+    # ignore_validate=True is to workaround this issue of print_designer app
+    # https://github.com/frappe/print_designer/issues/430
+    create_custom_fields(fields, ignore_validate=True)
+
+    install_playwright_browsers()
 
 
 def before_uninstall():
