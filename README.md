@@ -4,26 +4,34 @@
 
 Frappe app with advanced print functions, mainly focused on improving custom Jinja print formats.
 
-## Potential Features
+## Features
 
 * Universal Layout: Preview/Printview/PDF - they look just the same.
-* Modern CSS support: Flexbox, W3C standards - all printed with headless Chromium.
+* Full, mordern CSS support: Flexbox, W3C standards - all printed with headless Chromium.
 * Individual page size per Print Format: Independent PDF size :slight_smile: 
+* Page size unlimited (even A0 Format is possible)
 * Preview support for large page sizes (even A0 or larger paper size is supported)
 * Dynamic Headers & Footers: Apply different content per Page, add running numbers e.G.
+* Parallel use of regular Print Formats and Print Designer possible
+* [comin soon] Page ranges: Add different styles to parts of your pages
 
-- **More modern pdf-generation**
-PDF-rendering based on chromium allows moderndays html ans css support and uniform prints. Simply check "Generate PDF using Frappe Betterprint" in Print Format settings. Frappe Betterprint also prevents different layouts between preview/final print layout & Style.
-- **Infinite amount of print-features like dynamic headers/footer, running texts and more**
-Fine-grained control over prints: Apply running texts (e.g. running total in footer or add chapter text to header), different headers (e.g. different header on page 1) and much more.
-- **Individual page size per Print Format**
-Select individual pdf page size per Print Format: Enable Betterprint within print format settings and select your Page size.
-- **`better_page_break()` Jinja method** 
-Jinja method to display a visible page break in preview, and actual page break in prints.
-- **Preview support for pages larger than A4**
-Betterprint formats larger than A4 (up to A0 and more) can be displayed in a scaled format in the preview and even on the public-share-link page.
-- **`split_table_by_height(html, style, max_height)` Jinja method"** 
-Jinja method to split table into pages by calculating the (actual) rendered height per page.
+## Tools
+
+* `better_page_break()` Jinja method: Simple way to add a page-break
+
+## Installation
+
+Install this app on your bench:
+```
+$ bench get-app https://github.com/neocode-it/frappe_betterprint
+$ bench install-app frappe_betterprint
+```
+Install all required apt-packages using this command:
+```
+$ sudo apt-get update && sudo apt-get install -y libasound2 libatk-bridge2.0-0 libatk1.0-0 libatspi2.0-0 libcairo2 libcups2 libdbus-1-3 libdrm2 libgbm1 libglib2.0-0 libnspr4 libnss3 libpango-1.0-0 libx11-6 libxcb1 libxcomposite1 libxdamage1 libxext6 libxfixes3 libxkbcommon0 libxrandr2 xvfb fonts-noto-color-emoji fonts-unifont libfontconfig1 libfreetype6 xfonts-scalable fonts-liberation fonts-ipafont-gothic fonts-wqy-zenhei fonts-tlwg-loma-otf fonts-freefont-ttf
+``` 
+
+This app should be plug&play, but has not been tested on Frappe Cloud.
 
 #### License
 
