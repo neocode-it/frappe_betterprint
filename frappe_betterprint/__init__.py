@@ -16,18 +16,25 @@ def get_betterprint_template(
 ):
     content = get_rendered_template(doc=doc, print_format=print_format, *args, **kwargs)
 
+    if not print_format.generate_pdf_by_betterprint:
+        return content
+
     betterprint_script = (
         '<script src="/assets/frappe_betterprint/js/print.js"></script>'
     )
-    pagedjs_script = '<script src="/assets/frappe_betterprint/js/pagedjs.js"></script>'
-    if print_format.generate_pdf_by_betterprint:
-        return (
-            f"<template data-ref='pagedjs-content' class='betterprint-content'>{content}</template>"
-            + pagedjs_script
-            + betterprint_script
-        )
+    paginatejs_script = (
+        '<script src="/assets/frappe_betterprint/js/paginate.js"></script>'
+    )
 
-    return content
+    html = (
+        f"<div style='display: none;' class='betterprint-content'>{content}</div>"
+        + paginatejs_script
+        + betterprint_script
+    )
+
+    html = pdf_utils.html_inject_print_format(html, print_format.name)
+
+    return html
 
 
 frappe.www.printview.get_rendered_template = get_betterprint_template
