@@ -1,10 +1,11 @@
 __version__ = "0.0.1"
 
 import frappe
-from frappe.utils.pdf import get_pdf, pdf_body_html
-import frappe_betterprint.utils.pdf as pdf_utils
-
+from frappe.utils.pdf import get_pdf
 from frappe.www.printview import get_rendered_template
+
+import frappe_betterprint.pdf_gen.utils as pdf_utils
+import frappe_betterprint.pdf_gen
 
 
 def get_betterprint_template(
