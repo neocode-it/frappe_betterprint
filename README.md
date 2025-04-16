@@ -1,6 +1,7 @@
-# Frappe Betterprint
+> [!WARNING]
+> This project is still in development so expect breaking changes!
 
-### THIS APP IS NOT PRODUCTION-READY YET. FINAL ALPHA WILL BE IN THE WEEK OF 14th APRIL. STAY TUNED.
+# Frappe Betterprint
 
 Frappe app with advanced print functions, mainly focused on improving custom Jinja print formats.
 
