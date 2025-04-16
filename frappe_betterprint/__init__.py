@@ -40,40 +40,6 @@ def get_betterprint_template(
 frappe.www.printview.get_rendered_template = get_betterprint_template
 
 
-betterprint_local = frappe.local.betterprint = dict()
-
-
-def inject_body_html(template, print_format=None, args=None, **kwargs):
-    """Check if print format is betterprint enabled and injects additional content"""
-
-    # Return default content if betterprint is disabled for this print format
-    if not print_format or not print_format.generate_pdf_by_betterprint:
-        return pdf_body_html(template, args, **kwargs)
-
-    # Betterprint dict, which will be accessible as context variable
-    betterprint = {
-        "print_format_name": print_format.name,
-    }
-
-    # Inject betterprint as context variable within jinja env
-    args.update({"betterprint": betterprint})
-
-    # Render jinja
-    html = pdf_body_html(template, args, **kwargs)
-
-    # Unset default preview styles by overriding css variable of the print_format
-    # Luckily, doc.save() won't ever be called, which allows this nice approach
-    #
-    # Fixes frappe issue: https://github.com/frappe/frappe/issues/27965
-    if print_format.custom_format:
-        if not print_format.css:
-            print_format.css = ""
-        print_format.css = unset_default_style + print_format.css
-
-    # Inject print format name into html body content
-    return pdf_utils.html_inject_print_format(html, print_format.name)
-
-
 def pdf(html, options=None, *args, **kwargs):
     """Check if print format is betterprint_enabled\n\n
     `enabled`: Selects betterprint pdf generator (using chrome)\n
