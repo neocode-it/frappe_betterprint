@@ -12,6 +12,21 @@ from frappe.utils import get_url
 import frappe_betterprint.pdf_gen.utils as pdf_gen_utils
 
 
+def playwright_add_cors_allow_route(page, allow_domain):
+    domain_pattern = rf"^https?://{re.escape(allow_domain)}(:[0-9]+)?(/|$)"
+    page.route(re.compile(domain_pattern), lambda route: _playwright_cors_unset(route))
+
+
+def _playwright_cors_unset(route):
+    try:
+        response = route.fetch()
+        headers = response.headers.copy()
+        headers["Access-Control-Allow-Origin"] = "*"
+        route.fulfill(status=response.status, headers=headers, body=response.body())
+    except Exception as _:
+        route.continue_()
+
+
 def get_betterprint_pdf(html, options=None, output: PdfWriter | None = None):
     """Will generate betterprint pdf file using chrome"""
     betterprint_server.prelaunch_server()
