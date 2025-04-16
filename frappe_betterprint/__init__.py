@@ -78,6 +78,7 @@ def pdf(html, options=None, *args, **kwargs):
     """Check if print format is betterprint_enabled\n\n
     `enabled`: Selects betterprint pdf generator (using chrome)\n
     `disabled`: Applys default pdf generator (wkhtmltopdf)"""
+
     print_format = pdf_utils.html_extract_print_format(html)
 
     # Not a betterprint format? Return apply get_pdf() function
@@ -87,13 +88,9 @@ def pdf(html, options=None, *args, **kwargs):
     if not options:
         options = {}
 
-    # PDF size not specifically declared? Use betterprint page size setting.
-    if not options.get("page-size"):
-        options["page-size"] = frappe.db.get_value(
-            "Print Format", print_format, "betterprint_pdf_page_size"
-        )
-
-    return pdf_utils.get_betterprint_pdf(html, options, *args, **kwargs)
+    return frappe_betterprint.pdf_gen.get_betterprint_pdf(
+        html, options, *args, **kwargs
+    )
 
 
 frappe.utils.pdf.get_pdf = pdf
