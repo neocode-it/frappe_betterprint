@@ -105,7 +105,6 @@ def _playwright_cors_unset(route):
 
 def get_betterprint_pdf(html, options=None, output: PdfWriter | None = None):
     """Will generate betterprint pdf file using chrome"""
-    betterprint_server.prelaunch_server()
 
     if not options:
         options = {}
@@ -117,25 +116,7 @@ def get_betterprint_pdf(html, options=None, output: PdfWriter | None = None):
 
     html = pdf_gen_utils.prepare_html_for_external_use(html)
 
-    body = {
-        "html": html,
-        "filepath": pdf_file_path,
-    }
-
-    body = json.dumps(body)
-
-    betterprint_server.wait_for_ready()
-
-    response = requests.get(
-        "http://192.168.1.108:3333/v1/generate-betterprint-pdf",
-        data=body,
-        headers={"content-type": "application/json"},
-        timeout=15,
-    )
-    if response.status_code != 200:
-        frappe.throw(
-            "PDF generation failed. Invalid status code from betterprint_server"
-        )
+    render_pdf(html, pdf_file_path, get_url())
 
     pdf_content = None
 
