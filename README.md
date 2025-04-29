@@ -11,17 +11,14 @@ Frappe app with advanced print functions, mainly focused on improving custom Jin
 ## Features
 
 * Universal Layout: Preview/Printview/PDF - they look just the same.
-* Full, mordern CSS support: Flexbox, W3C standards - all printed with headless Chromium.
-* Individual page size per Print Format: Independent PDF size :slight_smile: 
-* Page size unlimited (even A0 Format is possible)
-* Preview support for large page sizes (even A0 or larger paper size is supported)
+* Full, modern CSS support: Flexbox, W3C standards - all printed with headless Chromium.
+* Individual page size per Print Format: Independent PDF Page size 😄
+* Preview & support for any page size (even A0 or larger page size is supported)
 * Dynamic Headers & Footers: Apply different content per Page, add running numbers e.G.
 * Parallel use of regular Print Formats and Print Designer possible
-* [comin soon] Page ranges: Add different styles to parts of your pages
-
-## Tools
-
-* `better_page_break()` Jinja method: Simple way to add a page-break
+* `better_page_break()` Jinja function for quick & easy page-breaks
+* [comin soon] Page ranges: Add different styles to parts of your page
+* [comin soon] PDF-worker or direct CDP integration to generate PDFs faster
 
 ## Installation
 
