@@ -16,7 +16,7 @@ def get_betterprint_template(
 ):
     content = get_rendered_template(doc=doc, print_format=print_format, *args, **kwargs)
 
-    if not print_format.generate_pdf_by_betterprint:
+    if not print_format or not print_format.generate_pdf_by_betterprint:
         return content
 
     betterprint_script = (
