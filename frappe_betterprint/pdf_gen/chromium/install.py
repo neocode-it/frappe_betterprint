@@ -143,7 +143,12 @@ def find_executable(download_dir):
 def install_chromium():
     try:
         # get frappe bench path
-        DOWNLOAD_DIR = os.path.dirname(os.path.abspath(__file__))
+        import frappe
+
+        DOWNLOAD_DIR = os.path.join(
+            frappe.utils.get_bench_path(),
+            "/betterprint-browser",
+        )
 
         platform_key = get_platform_details()
         print(f"Platform detected: {platform_key}")
