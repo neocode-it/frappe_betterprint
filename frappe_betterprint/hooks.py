@@ -7,7 +7,10 @@ app_license = "agpl-3.0"
 
 
 jinja = {"methods": ["frappe_betterprint.jinja.methods"]}
-after_install = "frappe_betterprint.install.after_install"
+after_install = [
+    "frappe_betterprint.install.after_install",
+    "frappe_betterprint.pdf_gen.chromium.install.install_chromium",
+]
 before_uninstall = "frappe_betterprint.install.before_uninstall"
 
 after_migrate = "frappe_betterprint.pdf_gen.setup_browser.install_playwright_browsers"
