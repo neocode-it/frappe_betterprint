@@ -145,7 +145,7 @@ def install_chromium():
         # get frappe bench path
         import frappe
 
-        print("Frappe bench path: ", frappe.utils.get_bench_path())
+        print("BETTERPRINT: Frappe bench path: ", frappe.utils.get_bench_path())
 
         DOWNLOAD_DIR = os.path.join(
             os.path.dirname(frappe.__file__),
@@ -181,6 +181,7 @@ def install_chromium():
 
         if platform.system().lower() == "linux":
             print("Add execution permission to chromium")
+            print(f"BETTERPRINT: Executable Path: {executable_path}")
             os.chmod(executable_path, 0o755)
 
     except Exception as e:
