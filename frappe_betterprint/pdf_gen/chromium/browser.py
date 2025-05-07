@@ -4,7 +4,7 @@ import re
 import websocket
 import json
 
-from page import Page
+from frappe_betterprint.pdf_gen.chromium.page import Page
 
 
 class Browser:

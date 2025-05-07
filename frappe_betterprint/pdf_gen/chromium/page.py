@@ -1,7 +1,7 @@
 import base64
 import queue
 
-from websocket_listener import WebSocketListener
+from frappe_betterprint.pdf_gen.chromium.websocket_listener import WebSocketListener
 
 
 class Page:
