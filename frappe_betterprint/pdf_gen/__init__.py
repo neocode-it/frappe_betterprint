@@ -116,13 +116,17 @@ def get_betterprint_pdf(html, options=None, output: PdfWriter | None = None):
 
     html = pdf_gen_utils.prepare_html_for_external_use(html)
 
-    render_pdf(html, pdf_file_path, get_url())
+    from frappe_betterprint.pdf_gen.chromium import generate_pdf
 
-    pdf_content = None
+    pdf_content = generate_pdf(html, get_url())
 
-    with open(pdf_file_path, "rb") as f:
-        pdf_content = f.read()
-        os.remove(pdf_file_path)
+    # render_pdf(html, pdf_file_path, get_url())
+
+    # pdf_content = None
+
+    # with open(pdf_file_path, "rb") as f:
+    #     pdf_content = f.read()
+    #     os.remove(pdf_file_path)
 
     reader = PdfReader(io.BytesIO(pdf_content))
 
