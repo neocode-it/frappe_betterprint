@@ -145,9 +145,11 @@ def install_chromium():
         # get frappe bench path
         import frappe
 
+        print("Frappe bench path: ", frappe.utils.get_bench_path())
+
         DOWNLOAD_DIR = os.path.join(
-            frappe.utils.get_bench_path(),
-            "/betterprint-browser",
+            os.path.dirname(frappe.__file__),
+            "betterprint-browser",
         )
 
         platform_key = get_platform_details()
