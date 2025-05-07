@@ -147,10 +147,10 @@ def install_chromium():
 
         print("BETTERPRINT: Frappe bench path: ", frappe.utils.get_bench_path())
 
-        DOWNLOAD_DIR = os.path.join(
-            os.path.dirname(frappe.__file__),
-            "betterprint-browser",
-        )
+        bench = frappe.utils.get_bench_path()
+        chrome_path = os.path.join(bench, "betterprint-chrome")
+
+        print("BETTERPRINT: Chrome path: ", chrome_path)
 
         platform_key = get_platform_details()
         print(f"Platform detected: {platform_key}")
@@ -170,19 +170,24 @@ def install_chromium():
             sys.exit(1)
 
         zip_data = download_file(download_url)
-        extract_zip(zip_data, DOWNLOAD_DIR)
+        extract_zip(zip_data, chrome_path)
 
-        executable_path = find_executable(DOWNLOAD_DIR)
+        executable_path = find_executable(chrome_path)
         if not executable_path:
-            print(f"Executable not found in directory: {DOWNLOAD_DIR}")
+            print(f"Executable not found in directory: {chrome_path}")
             sys.exit(1)
 
         print(f"Chromium executable ready: {os.path.abspath(executable_path)}")
 
         if platform.system().lower() == "linux":
             print("Add execution permission to chromium")
-            print(f"BETTERPRINT: Executable Path: {executable_path}")
-            os.chmod(executable_path, 0o755)
+            # print(f"BETTERPRINT: Executable Path: {executable_path}")
+            # os.chmod(executable_path, 0o755)
+            # Iterate over all files in the folder
+            for root, dirs, files in os.walk(chrome_path):
+                for filename in files:
+                    file_path = os.path.join(root, filename)
+                    os.chmod(file_path, 0o755)  # Change file permissions
 
     except Exception as e:
         print(f"Error: {e}")
