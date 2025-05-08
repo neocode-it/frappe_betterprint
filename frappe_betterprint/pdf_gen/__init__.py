@@ -116,9 +116,10 @@ def get_betterprint_pdf(html, options=None, output: PdfWriter | None = None):
 
     html = pdf_gen_utils.prepare_html_for_external_use(html)
 
-    from frappe_betterprint.pdf_gen.chromium import generate_pdf
+    from frappe_betterprint.pdf_gen.chromium import generate_pdf, log
 
     pdf_content = generate_pdf(html, get_url())
+    log("PDF generated, content received")
 
     # render_pdf(html, pdf_file_path, get_url())
 
@@ -143,4 +144,5 @@ def get_betterprint_pdf(html, options=None, output: PdfWriter | None = None):
 
     filedata = pdf_gen_utils.get_file_data_from_writer(writer)
 
+    log("Return file content")
     return filedata
