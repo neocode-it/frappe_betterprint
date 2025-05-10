@@ -60,9 +60,7 @@ class WebSocketListener(threading.Thread):
         while self.running:
             try:
                 # Check if the WebSocket is still open
-                if (
-                    not self.websocket.connected
-                ):  # WebSocket-client provides a `connected` attribute
+                if not self.websocket.connected:  # WebSocket-client provides a `connected` attribute
                     print("WebSocket connection closed. Terminating listener.")
                     break
 
@@ -133,9 +131,7 @@ class WebSocketListener(threading.Thread):
         header_dict["access-control-allow-origin"] = "*"
 
         # Convert back to list format
-        response_headers = [
-            {"name": name, "value": value} for name, value in header_dict.items()
-        ]
+        response_headers = [{"name": name, "value": value} for name, value in header_dict.items()]
 
         self.send_cdp_command(
             "Fetch.continueResponse",

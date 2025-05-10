@@ -1,4 +1,3 @@
-
 def html_wrapper(body: str, style: str) -> str:
     return f"""
     <!DOCTYPE html>

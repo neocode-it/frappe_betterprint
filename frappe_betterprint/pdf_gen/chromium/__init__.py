@@ -52,6 +52,4 @@ def log(message):
     time.time()
     with open("frappe_betterprint.log", "a") as log_file:
         # log with timestamp including ms
-        log_file.write(
-            f"{time.strftime('%H:%M:%S')}:{int(time.time() * 1000) % 1000:03d} - {message}\n"
-        )
+        log_file.write(f"{time.strftime('%H:%M:%S')}:{int(time.time() * 1000) % 1000:03d} - {message}\n")

@@ -22,24 +22,18 @@ def get_platform_details():
         return "win64"
     elif system == "linux" and machine == "x86_64":
         return "linux64"
-    raise ValueError(
-        "Unsupported platform: Only Linux 64bit and Windows x86 64bit are supported."
-    )
+    raise ValueError("Unsupported platform: Only Linux 64bit and Windows x86 64bit are supported.")
 
 
 def fetch_version_data():
     """Fetches version info using `http.client`."""
     try:
         conn = http.client.HTTPSConnection(VERSIONS_URL)
-        conn.request(
-            "GET", "/chrome-for-testing/known-good-versions-with-downloads.json"
-        )
+        conn.request("GET", "/chrome-for-testing/known-good-versions-with-downloads.json")
         response = conn.getresponse()
 
         if response.status != 200:
-            raise Exception(
-                f"Failed to fetch data: {response.status} {response.reason}"
-            )
+            raise Exception(f"Failed to fetch data: {response.status} {response.reason}")
 
         data = response.read().decode("utf-8")
         conn.close()
@@ -105,15 +99,11 @@ def extract_zip(zip_content, extract_to):
             # Identify the common top-level folder (if exists)
             top_level_folder = os.path.commonprefix(members)
             if "/" in top_level_folder:
-                top_level_folder = (
-                    top_level_folder.split("/")[0] + "/"
-                )  # Get only the first folder
+                top_level_folder = top_level_folder.split("/")[0] + "/"  # Get only the first folder
 
             for member in members:
                 stripped_member = (
-                    member[len(top_level_folder) :]
-                    if member.startswith(top_level_folder)
-                    else member
+                    member[len(top_level_folder) :] if member.startswith(top_level_folder) else member
                 )
                 target_path = os.path.join(extract_to, stripped_member)
 

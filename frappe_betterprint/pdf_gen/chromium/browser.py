@@ -120,9 +120,7 @@ class Browser:
                 universal_newlines=True,  # Alternative for text=True in older Python
             )
 
-            if (
-                not self.process or self.process.poll()
-            ):  # Poll = not None means process is running
+            if not self.process or self.process.poll():  # Poll = not None means process is running
                 raise Exception("Cannot connect to Browser: Browser is not running")
 
             self.ws_port = None
@@ -136,9 +134,7 @@ class Browser:
                     if match:
                         # Set port of the browser
                         self.ws_port = int(match.group(1))
-                        devtools_url = line.strip().split()[
-                            -1
-                        ]  # Converts the url from the debug string
+                        devtools_url = line.strip().split()[-1]  # Converts the url from the debug string
 
                         self.ws = websocket.create_connection(devtools_url)
                         return self
@@ -155,25 +151,16 @@ class Browser:
     def new_page(self, mock_domain=None):
         initial_url = "about:blank"
 
-        create_target_id = self.send_command(
-            "Target.createTarget", {"url": initial_url}
-        )
+        create_target_id = self.send_command("Target.createTarget", {"url": initial_url})
         create_target_response = self.get_response(create_target_id)
 
         if not create_target_response or "error" in create_target_response:
             raise Exception(f"Failed creating page {create_target_response}")
 
-        if (
-            "result" not in create_target_response
-            or "targetId" not in create_target_response["result"]
-        ):
-            raise Exception(
-                f"Unexpected response from the Browser: {create_target_response}"
-            )
+        if "result" not in create_target_response or "targetId" not in create_target_response["result"]:
+            raise Exception(f"Unexpected response from the Browser: {create_target_response}")
 
-        page = Page(
-            self.ws_port, create_target_response["result"]["targetId"], mock_domain
-        )
+        page = Page(self.ws_port, create_target_response["result"]["targetId"], mock_domain)
         self.pages.append(page)
         return page
 
