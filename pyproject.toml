@@ -58,3 +58,21 @@ packages = [
 # These dependencies are only installed when developer mode is enabled
 [tool.bench.dev-dependencies]
 # package_name = "~=1.1.0"
+
+[tool.ruff]
+line-length = 110
+target-version = "py310"
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+docstring-code-format = true
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "B"]
+fixable = ["E", "F"]
+unfixable = ["W", "B"]
+ignore = ["E501"]  # Ignore line-length rule
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["E402"]  # Ignore import order warnings in tests
