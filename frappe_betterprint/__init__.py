@@ -19,15 +19,14 @@ def get_betterprint_template(
     if not print_format or not print_format.generate_pdf_by_betterprint:
         return content
 
-    content = "<p>Hello</p>"
-
     betterprint_script = '<script src="/assets/frappe_betterprint/js/print.js"></script>'
     paginatejs_script = '<script src="/assets/frappe_betterprint/js/paginate.js"></script>'
 
     html = (
-        f"<div style='display: none;' class='betterprint-content'>{content}</div>"
-        + paginatejs_script
-        + betterprint_script
+        content
+        # f"<div style='display: none;' class='betterprint-content'>{content}</div>"
+        # + paginatejs_script
+        # + betterprint_script
     )
 
     html = pdf_utils.html_inject_print_format(html, print_format.name)

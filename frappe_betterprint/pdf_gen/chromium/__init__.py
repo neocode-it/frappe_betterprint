@@ -15,19 +15,21 @@ def generate_pdf(html, site_url):
         page = browser.new_page(mock_domain=site_url)
 
         page.set_content(html)
-        log("Page content set")
-        js = """
-            new Promise(resolve => {
-                const checkInterval = setInterval(() => {
-                    if (window.betterPrintFinished) {
-                        clearInterval(checkInterval);
-                        resolve();
-                    }
-                }, 100);
-            });
-        """
-        page.exec_js(js)
-        log("JavaScript executed")
+        # log("Page content set")
+        # js = """
+        #     new Promise(resolve => {
+        #         const checkInterval = setInterval(() => {
+        #             if (window.betterPrintFinished) {
+        #                 clearInterval(checkInterval);
+        #                 resolve();
+        #             }
+        #         }, 100);
+        #     });
+        # """
+        # page.exec_js(js)
+        # log("JavaScript executed")
+
+        log("JS Skipped")
 
         pdf_content = page.pdf()
         log("PDF generated")
