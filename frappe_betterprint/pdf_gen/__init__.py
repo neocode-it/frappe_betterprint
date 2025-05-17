@@ -94,9 +94,6 @@ def _playwright_cors_unset(route):
 
 def get_betterprint_pdf(html, options=None, output: PdfWriter | None = None):
     """Will generate betterprint pdf file using chrome"""
-    from frappe_betterprint.pdf_gen.chromium import log
-
-    log("Generating PDF")
 
     if not options:
         options = {}
@@ -130,7 +127,5 @@ def get_betterprint_pdf(html, options=None, output: PdfWriter | None = None):
         writer.encrypt(password)
 
     filedata = pdf_gen_utils.get_file_data_from_writer(writer)
-
-    log("Return file content")
 
     return filedata
