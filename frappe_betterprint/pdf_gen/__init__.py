@@ -1,6 +1,8 @@
 import os
 import re
 import io
+import subprocess
+import sys
 from pypdf import PdfReader, PdfWriter
 from playwright.sync_api import sync_playwright
 from urllib.parse import urlparse
@@ -77,6 +79,20 @@ def render_pdf(html, filepath, origin) -> dict:
         playwright.stop()
 
 
+def log(message):
+    """
+    Log a message to the console.
+    """
+    import time
+
+    time.time()
+    with open("frappe_betterprint.log", "a") as log_file:
+        # log with timestamp including ms
+        log_file.write(
+            f"{time.strftime('%H:%M:%S')}:{int(time.time() * 1000) % 1000:03d} - {message}\n"
+        )
+
+
 def playwright_add_cors_allow_route(page, allow_domain):
     domain_pattern = rf"^https?://{re.escape(allow_domain)}(:[0-9]+)?(/|$)"
     page.route(re.compile(domain_pattern), lambda route: _playwright_cors_unset(route))
@@ -105,7 +121,19 @@ def get_betterprint_pdf(html, options=None, output: PdfWriter | None = None):
 
     html = pdf_gen_utils.prepare_html_for_external_use(html)
 
-    render_pdf(html, pdf_file_path, get_url())
+    config = frappe.get_common_site_config()
+    print_setup = config.get("print_setup", "internal")
+
+    if print_setup == "external":
+        render_external(html, pdf_file_path, get_url())
+    elif print_setup == "internal":
+        render_internal(html, pdf_file_path, get_url())
+    elif print_setup == "server":
+        render_server(html, pdf_file_path, get_url())
+    else:
+        raise ValueError(
+            f"Invalid print setup '{print_setup}'. Expected 'external' or 'internal'."
+        )
 
     pdf_content = None
 
@@ -129,3 +157,65 @@ def get_betterprint_pdf(html, options=None, output: PdfWriter | None = None):
     filedata = pdf_gen_utils.get_file_data_from_writer(writer)
 
     return filedata
+
+
+def render_external(html, filepath, origin):
+    script_directory = os.path.dirname(os.path.abspath(__file__))
+    parent_directory = os.path.dirname(script_directory)
+
+    script_path = os.path.join(parent_directory, "pdf_renderer", "renderer.py")
+
+    import time
+
+    start = time.time()
+    subprocess.run(
+        [sys.executable, script_path, html, filepath, origin],
+        cwd=os.path.dirname(script_path),
+    )
+    log(f"Time taken to run subprocess(external): {time.time() - start} seconds")
+
+
+def render_internal(html, filepath, origin):
+    from frappe_betterprint.pdf_renderer import renderer
+
+    import time
+
+    start = time.time()
+
+    render_pdf(html, filepath, origin)
+    log(f"Time taken to run in-frappe print(internal): {time.time() - start} seconds")
+
+
+def render_server(html, filepath, origin):
+    """
+    Will generate betterprint pdf file using betterprint server
+    Returns the pdf content
+    """
+
+    import json
+    import requests
+    import time
+
+    start = time.time()
+
+    body = {
+        "html": html,
+        "filepath": filepath,
+        "allow_origin": origin,
+    }
+
+    body = json.dumps(body)
+
+    response = requests.get(
+        "http://debian:39584/v1/generate-betterprint-pdf",
+        data=body,
+        headers={"content-type": "application/json"},
+        timeout=15,
+    )
+    if response.status_code != 200:
+        frappe.throw(
+            "PDF generation failed. Invalid status code from betterprint_server"
+        )
+
+    log(f"Time taken to run server print(server): {time.time() - start} seconds")
+    return
