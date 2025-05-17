@@ -23,10 +23,9 @@ def get_betterprint_template(
     paginatejs_script = '<script src="/assets/frappe_betterprint/js/paginate.js"></script>'
 
     html = (
-        content
-        # f"<div style='display: none;' class='betterprint-content'>{content}</div>"
-        # + paginatejs_script
-        # + betterprint_script
+        f"<div style='display: none;' class='betterprint-content'>{content}</div>"
+        + paginatejs_script
+        + betterprint_script
     )
 
     html = pdf_utils.html_inject_print_format(html, print_format.name)
