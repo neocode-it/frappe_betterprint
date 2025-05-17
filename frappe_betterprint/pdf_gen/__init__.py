@@ -163,7 +163,7 @@ def get_betterprint_server_pdf(html, domain):
     filename = frappe.generate_hash() + ".pdf"
 
     print_path = "/home/" + filename
-    file_path = "/workspace/development/frappe-v15/" + filename
+    file_path = "/home/frappe/frappe-bench/sites/" + filename
 
     body = {
         "html": html,
