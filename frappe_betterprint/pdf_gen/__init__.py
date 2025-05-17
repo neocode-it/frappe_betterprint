@@ -17,13 +17,6 @@ def render_pdf(html, filepath, origin) -> dict:
     Generates a PDF from HTML content, waiting for a custom event or timeout.
     """
 
-    # bench_path = frappe.utils.get_bench_path() + "/playwright"
-    bench_path = frappe.utils.get_site_path() + "/betterprint_browsers"
-
-    # Install browser executables to bench/playwright folder
-    # -> Required to share one exec. with all worker in every container
-    os.environ["PLAYWRIGHT_BROWSERS_PATH"] = bench_path
-
     playwright = None
     browser = None
     page = None
@@ -33,48 +26,44 @@ def render_pdf(html, filepath, origin) -> dict:
         playwright = sync_playwright().start()
         browser = playwright.chromium.launch()
 
-        try:
-            page = browser.new_page()
+        page = browser.new_page()
 
-            # # Convert origin url into origin domain
-            parsed_url = urlparse(origin)
-            full_domain = parsed_url.netloc
-            domain = full_domain.split(":")[0]  # Remove the port if present
+        # # Convert origin url into origin domain
+        parsed_url = urlparse(origin)
+        full_domain = parsed_url.netloc
+        domain = full_domain.split(":")[0]  # Remove the port if present
 
-            # # Ignore CORS for this domain
-            # # Workaround for: Chrome will always block CORS for local html files
-            playwright_add_cors_allow_route(page, domain)
+        # # Ignore CORS for this domain
+        # # Workaround for: Chrome will always block CORS for local html files
+        playwright_add_cors_allow_route(page, domain)
 
-            # Add page content
-            page.set_content(html)
-            # Wait for the "betterPrintFinished" event with a timeout of 30 seconds (30000 ms)
-            page.evaluate("""
-                document.addEventListener('betterPrintFinished', () => {
-                    window.betterPrintFinished = true;
-                });
-            """)
+        # Add page content
+        page.set_content(html)
+        # Wait for the "betterPrintFinished" event with a timeout of 30 seconds (30000 ms)
+        page.evaluate("""
+            document.addEventListener('betterPrintFinished', () => {
+                window.betterPrintFinished = true;
+            });
+        """)
 
-            page.wait_for_function("window.betterPrintFinished === true", timeout=30000)
+        page.wait_for_function("window.betterPrintFinished === true", timeout=30000)
 
-            dimensions = page.evaluate("""() => {
-                const page = document.querySelector(".paginatejs-pages .page");
-                const style = getComputedStyle(page);
-                const width = style.width;
-                const height = style.height;
-                return {"width": width, "height": height};
-                }
-            """)
+        dimensions = page.evaluate("""() => {
+            const page = document.querySelector(".paginatejs-pages .page");
+            const style = getComputedStyle(page);
+            const width = style.width;
+            const height = style.height;
+            return {"width": width, "height": height};
+            }
+        """)
 
-            # page.pdf(width=page_width, height=page_height, path=task["filepath"])
-            page.pdf(
-                width=dimensions["width"],
-                height=dimensions["height"],
-                path=filepath,
-                print_background=True,
-            )
-        except Exception as e:
-            frappe.throw(f"Unknown exception during PDF-print: {e}")
-            return False
+        # page.pdf(width=page_width, height=page_height, path=task["filepath"])
+        page.pdf(
+            width=dimensions["width"],
+            height=dimensions["height"],
+            path=filepath,
+            print_background=True,
+        )
 
     except Exception as e:
         frappe.throw(
@@ -105,12 +94,15 @@ def _playwright_cors_unset(route):
 
 def get_betterprint_pdf(html, options=None, output: PdfWriter | None = None):
     """Will generate betterprint pdf file using chrome"""
+    from frappe_betterprint.pdf_gen.chromium import log
+
+    log("Generating PDF")
 
     if not options:
         options = {}
 
     # TODO: Implement page size if set in options
-    page_size = pdf_gen_utils.prepare_page_size(options)
+    # page_size = pdf_gen_utils.prepare_page_size(options)
 
     pdf_file_path = os.path.abspath(f"/tmp/{frappe.generate_hash()}.pdf")
 
@@ -138,5 +130,7 @@ def get_betterprint_pdf(html, options=None, output: PdfWriter | None = None):
         writer.encrypt(password)
 
     filedata = pdf_gen_utils.get_file_data_from_writer(writer)
+
+    log("Return file content")
 
     return filedata
