@@ -10,4 +10,11 @@ def setup_betterprint():
     install_chromium()
 
 
-commands = [setup_betterprint]
+@click.command("start-server", help="Start Betterprint server")
+def start_server():
+    from frappe_betterprint.pdf_renderer import launch_browser
+
+    launch_browser()
+
+
+commands = [setup_betterprint, start_server]
