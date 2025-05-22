@@ -40,11 +40,6 @@ def generate_pdf(html, site_url):
         return pdf_content
 
 
-def before_request():
-    if frappe.request.path == "/api/method/frappe.utils.print_format.download_pdf":
-        log("before_request")
-
-
 def log(message):
     """
     Log a message to the console.
