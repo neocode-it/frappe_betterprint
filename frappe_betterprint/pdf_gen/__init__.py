@@ -128,7 +128,12 @@ def get_betterprint_pdf(html, options=None, output: PdfWriter | None = None):
     #     pdf_content = f.read()
     #     os.remove(pdf_file_path)
 
+    log("Generating PDF using Betterprint server")
+    import time
+
+    start = time.time()
     pdf_content = get_betterprint_server_pdf(html, get_url())
+    log(f"PDF generated in {time.time() - start:.2f} seconds")
 
     reader = PdfReader(io.BytesIO(pdf_content))
 
