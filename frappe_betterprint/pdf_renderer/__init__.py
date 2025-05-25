@@ -23,16 +23,28 @@ def install_browser():
         print("Error: ", result.stderr)
 
 
+def start_server(foreground=False):
     # Maybe add check if the dependencies are installed here...
+
+    betterprint_path = frappe.utils.get_bench_path() + "/betterprint_browser"
+    os.environ["PLAYWRIGHT_BROWSERS_PATH"] = betterprint_path
 
     try:
         # Launch server
         # The server will exit by itself if there's already an instance running
-        subprocess.Popen(
-            [sys.executable, "-m", "frappe_betterprint.pdf_renderer.server"],
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.DEVNULL,
-        )
+        if foreground:
+            subprocess.run(
+                [sys.executable, "-m", "frappe_betterprint.pdf_renderer.server"],
+                check=True,
+                env=os.environ,
+            )
+        else:
+            subprocess.Popen(
+                [sys.executable, "-m", "frappe_betterprint.pdf_renderer.server"],
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+                env=os.environ,
+            )
     except Exception as e:
         print(e)
         frappe.throw("ERROR: Couldn't start betterprint_server.")
