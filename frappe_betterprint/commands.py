@@ -3,18 +3,18 @@ import click
 
 @click.command("setup-betterprint", help="Setup Betterprint & Browser")
 def setup_betterprint():
-    from frappe_betterprint.pdf_gen.chromium.install import (
-        install_chromium,
+    from frappe_betterprint.pdf_renderer import (
+        install_browser,
     )
 
-    install_chromium()
+    install_browser()
 
 
 @click.command("start-server", help="Start Betterprint server")
 def start_server():
-    from frappe_betterprint.pdf_renderer import launch_browser
+    from frappe_betterprint.pdf_renderer import start_server
 
-    launch_browser()
+    start_server(foreground=True)
 
 
 commands = [setup_betterprint, start_server]

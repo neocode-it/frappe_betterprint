@@ -2,24 +2,65 @@ import subprocess
 import requests
 import time
 import sys
+import os
 
 import frappe
 
 
-def start_server():
+def install_browser():
+    print("Installing betterprint browsers...")
+    bench_path = frappe.utils.get_bench_path() + "/betterprint_browser"
+
+    # Install browser executables to bench/playwright folder
+    # -> Required to share one exec. with all worker in every container
+    os.environ["PLAYWRIGHT_BROWSERS_PATH"] = bench_path
+
+    result = subprocess.run([sys.executable, "-m", "playwright", "install", "chromium"])
+
+    if result.returncode == 0:
+        print("Browsers successfully installed")
+    else:
+        print("Failed installing browsers failed")
+        print("Error: ", result.stderr)
+
+
+def start_server(foreground=False):
     # Maybe add check if the dependencies are installed here...
+
+    betterprint_path = frappe.utils.get_bench_path() + "/betterprint_browser"
+    os.environ["PLAYWRIGHT_BROWSERS_PATH"] = betterprint_path
 
     try:
         # Launch server
         # The server will exit by itself if there's already an instance running
-        subprocess.Popen(
-            [sys.executable, "-m", "frappe_betterprint.pdf_renderer.server"],
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.DEVNULL,
-        )
+        if foreground:
+            subprocess.run(
+                [sys.executable, "-m", "frappe_betterprint.pdf_renderer.server"],
+                check=True,
+                env=os.environ,
+            )
+        else:
+            subprocess.Popen(
+                [sys.executable, "-m", "frappe_betterprint.pdf_renderer.server"],
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+                env=os.environ,
+            )
     except Exception as e:
         print(e)
         frappe.throw("ERROR: Couldn't start betterprint_server.")
+
+
+def kill_server():
+    """Kill the betterprint server process if it is running."""
+    try:
+        subprocess.run(
+            ["pkill", "-f", "betterprint_server"],
+            check=True,
+        )
+    except subprocess.CalledProcessError:
+        # If the process is not found, we can ignore the error
+        pass
 
 
 def check_server_status(timeout=10):
@@ -33,7 +74,7 @@ def check_server_status(timeout=10):
                         f"Couldn't launch betterprint_server: Response invalid. Received statuscode {response.status_code}"
                     )
                 else:
-                    return
+                    return True
             except requests.ConnectionError:
                 # Server is inaccessible
                 # If the server is not running yet, wait and try again

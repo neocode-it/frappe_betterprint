@@ -10,10 +10,21 @@ jinja = {"methods": ["frappe_betterprint.jinja.methods"]}
 after_install = [
     "frappe_betterprint.install.after_install",
     "frappe_betterprint.pdf_gen.chromium.install.install_chromium",
+    "frappe_betterprint.pdf_renderer.start_server",
 ]
-before_uninstall = "frappe_betterprint.install.before_uninstall"
+before_uninstall = [
+    "frappe_betterprint.install.before_uninstall",
+    "frappe_betterprint.pdf_renderer.kill_server",
+]
 
-after_migrate = "frappe_betterprint.pdf_gen.setup_browser.install_playwright_browsers"
+before_migrate = [
+    "frappe_betterprint.pdf_renderer.kill_server",
+]
+
+after_migrate = [
+    "frappe_betterprint.pdf_gen.setup_browser.install_playwright_browsers",
+    "frappe_betterprint.pdf_renderer.start_server",
+]
 
 page_js = {
     "print": [

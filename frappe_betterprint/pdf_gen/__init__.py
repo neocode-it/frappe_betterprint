@@ -105,7 +105,6 @@ def _playwright_cors_unset(route):
 
 def get_betterprint_pdf(html, options=None, output: PdfWriter | None = None):
     """Will generate betterprint pdf file using chrome"""
-
     if not options:
         options = {}
 
@@ -116,7 +115,7 @@ def get_betterprint_pdf(html, options=None, output: PdfWriter | None = None):
 
     html = pdf_gen_utils.prepare_html_for_external_use(html)
 
-    from frappe_betterprint.pdf_gen.chromium import generate_pdf, log
+    from frappe_betterprint.pdf_gen.chromium import log
 
     # pdf_content = generate_pdf(html, get_url())
     # log("PDF generated, content received")
@@ -159,11 +158,15 @@ def get_betterprint_server_pdf(html, domain):
 
     import json
     import requests
+    from frappe_betterprint.pdf_renderer import start_server, check_server_status
+
+    start_server()
+    if not check_server_status(timeout=10):
+        frappe.throw("Betterprint server is not running or not reachable.")
 
     filename = frappe.generate_hash() + ".pdf"
 
-    print_path = "/home/" + filename
-    file_path = "/home/frappe/frappe-bench/sites/" + filename
+    print_path = "/tmp/" + filename
 
     body = {
         "html": html,
@@ -173,19 +176,25 @@ def get_betterprint_server_pdf(html, domain):
 
     body = json.dumps(body)
 
+    import time
+
+    start = time.time()
     response = requests.get(
-        "http://debian:39584/v1/generate-betterprint-pdf",
+        "http://127.0.0.1:39584/v1/generate-betterprint-pdf",
         data=body,
         headers={"content-type": "application/json"},
         timeout=15,
     )
     if response.status_code != 200:
-        frappe.throw("PDF generation failed. Invalid status code from betterprint_server")
+        frappe.throw(
+            f"PDF generation failed. Invalid status code from betterprint_server: {response.status_code}"
+        )
+    print(f"PDF generated in {time.time() - start:.2f} seconds")
 
     pdf_content = None
 
-    with open(file_path, "rb") as f:
+    with open(print_path, "rb") as f:
         pdf_content = f.read()
-        os.remove(file_path)
+        os.remove(print_path)
 
     return pdf_content

@@ -12,6 +12,7 @@ dependencies = [
     "requests",
     "pypdf",
     "playwright",
+    "setproctitle",
     "websocket-client"
 ]
 
