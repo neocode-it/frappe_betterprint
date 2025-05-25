@@ -8,6 +8,9 @@ from frappe_betterprint.pdf_gen.setup_browser import install_playwright_browsers
 def after_install():
     # ignore_validate=True is to workaround this issue of print_designer app
     # https://github.com/frappe/print_designer/issues/430
+    print("\n\n\nBETTERPRINT AFTER INSTALL\n\n\n")
+    print("\n\n\nBETTERPRINT AFTER INSTALL\n\n\n")
+    print("\n\n\nBETTERPRINT AFTER INSTALL\n\n\n")
     create_custom_fields(fields, ignore_validate=True)
 
     # install_playwright_browsers()

@@ -23,7 +23,7 @@ before_migrate = [
 ]
 
 after_migrate = [
-    "frappe_betterprint.pdf_gen.setup_browser.install_playwright_browsers",
+    "frappe_betterprint.pdf_renderer.install_browser",
     "frappe_betterprint.pdf_renderer.start_server",
 ]
 
