@@ -10,7 +10,7 @@ def after_install():
     # https://github.com/frappe/print_designer/issues/430
     create_custom_fields(fields, ignore_validate=True)
 
-    install_playwright_browsers()
+    # install_playwright_browsers()
 
 
 def before_uninstall():

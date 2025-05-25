@@ -9,7 +9,8 @@ app_license = "agpl-3.0"
 jinja = {"methods": ["frappe_betterprint.jinja.methods"]}
 after_install = [
     "frappe_betterprint.install.after_install",
-    "frappe_betterprint.pdf_gen.chromium.install.install_chromium",
+    # "frappe_betterprint.pdf_gen.chromium.install.install_chromium",
+    "frappe_betterprint.pdf_renderer.install_browser",
     "frappe_betterprint.pdf_renderer.start_server",
 ]
 before_uninstall = [

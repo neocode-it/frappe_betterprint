@@ -3,6 +3,7 @@ import requests
 import time
 import sys
 import os
+import psutil
 
 import frappe
 
@@ -54,10 +55,9 @@ def start_server(foreground=False):
 def kill_server():
     """Kill the betterprint server process if it is running."""
     try:
-        subprocess.run(
-            ["pkill", "-f", "betterprint_server"],
-            check=True,
-        )
+        for proc in psutil.process_iter(attrs=["pid", "name"]):
+            if proc.info["name"] == "betterprint_server":
+                psutil.Process(proc.info["pid"]).terminate()
     except subprocess.CalledProcessError:
         # If the process is not found, we can ignore the error
         pass
