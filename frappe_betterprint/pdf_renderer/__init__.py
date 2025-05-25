@@ -47,7 +47,7 @@ def check_server_status(timeout=10):
                         f"Couldn't launch betterprint_server: Response invalid. Received statuscode {response.status_code}"
                     )
                 else:
-                    return
+                    return True
             except requests.ConnectionError:
                 # Server is inaccessible
                 # If the server is not running yet, wait and try again
