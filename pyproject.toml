@@ -13,7 +13,10 @@ dependencies = [
     "pypdf",
     "playwright",
     "setproctitle",
-    "websocket-client"
+    "websocket-client",
+    "waitress",
+    "werkzeug",
+    "filelock",
 ]
 
 [build-system]
