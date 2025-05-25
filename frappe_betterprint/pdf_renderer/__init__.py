@@ -9,7 +9,20 @@ import psutil
 import frappe
 
 
-def start_server():
+def install_browser():
+    print("Installing betterprint browsers...")
+    bench_path = frappe.utils.get_bench_path() + "/betterprint_browser"
+    os.environ["PLAYWRIGHT_BROWSERS_PATH"] = bench_path
+
+    result = subprocess.run([sys.executable, "-m", "playwright", "install", "chromium"])
+
+    if result.returncode == 0:
+        print("Browsers successfully installed")
+    else:
+        print("Failed installing browsers failed")
+        print("Error: ", result.stderr)
+
+
     # Maybe add check if the dependencies are installed here...
 
     try:
