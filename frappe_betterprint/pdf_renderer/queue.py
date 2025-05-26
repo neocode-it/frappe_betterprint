@@ -27,3 +27,6 @@ class WorkerQueue:
         with self._result_condition:
             self._result[task["key"]] = result
             self._result_condition.notify_all()
+
+
+global_queue = WorkerQueue()
