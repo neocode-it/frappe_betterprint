@@ -116,6 +116,7 @@ def generate_betterprint_pdf(task: dict, browser) -> dict:
         path=task["filepath"],
         print_background=True,
     )
+    page.close()
 
     return {"content": "successful"}
 
