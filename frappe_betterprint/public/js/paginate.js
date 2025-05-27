@@ -331,10 +331,16 @@
                 try {
                   // Loop through the CSS rules in the stylesheet
                   for (let j = styleSheet.cssRules.length - 1; j >= 0; j--) {
-                    if (
-                      styleSheet.cssRules[j].media &&
-                      styleSheet.cssRules[j].media.mediaText === "print"
-                    ) {
+                    const rule = styleSheet.cssRules[j];
+                    if (!rule.media) {
+                      // If the rule is not a media rule, continue to the next rule
+                      continue;
+                    }
+                    const mediaText = rule.media.mediaText.toLowerCase();
+                    if (mediaText === "print") {
+                      styleSheet.deleteRule(j);
+                    } else if (/min-width|max-width/.test(mediaText)) {
+                      console.log(rule);
                       styleSheet.deleteRule(j);
                     }
                   }
