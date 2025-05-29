@@ -1,10 +1,16 @@
+import os
+import setproctitle
+import json
 
 from waitress import serve
 from filelock import Timeout, FileLock
+from werkzeug.wrappers import Request, Response
 import frappe
 
 from frappe_betterprint.pdf_renderer.queue import global_queue
 from frappe_betterprint.pdf_renderer.worker import launch_worker_thread
+import frappe_betterprint.pdf_renderer.validation as validation
+
 
 def start_server(public=False):
     setproctitle.setproctitle("betterprint_server")
@@ -29,6 +35,31 @@ def start_server(public=False):
     except Timeout:
         print("Cannot start server: Another instance of Betterprint Server currently holds the lock.")
         exit(1)
+
+
+def application(environ, start_response):
+    request = Request(environ)
+    # Parse json
+    data = None
+    lenght = len(request.get_data())
+    if lenght and lenght < 10_000_000:
+        data = request.get_json()
+
+    # Set default response
+    response = Response("Internal server error", status=500)
+
+    route_map = {
+        "/v1/status": status,
+        "/v1/generate-betterprint-pdf": generate_betterprint_pdf,
+    }
+
+    if request.path in route_map:
+        response = route_map[request.path](data)
+    else:
+        response = Response("Not Found", status=404)
+
+    return response(environ, start_response)
+
 
 if __name__ == "__main__":
     start_server()  # Ensure it runs when executed directly
