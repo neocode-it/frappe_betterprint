@@ -60,6 +60,29 @@ def application(environ, start_response):
 
     return response(environ, start_response)
 
+def generate_betterprint_pdf(data):
+    errors = validation.validate(
+        data,
+        {
+            "filepath": [validation.is_valid_pdf_filepath],
+            "allow_origin": [validation.is_valid_url],
+            "html": [validation.is_valid_string],
+        },
+    )
+
+    if errors:
+        print("Validation errors:", errors)
+        response = {"status": "failed", "errors": errors}
+        return Response(json.dumps(response), mimetype="application/json", status="422")
+
+    result = global_queue.run_and_wait("generate-betterprint-pdf", data)
+
+    if result["error"]:
+        return Response(f"Input data invalid: {result['error']}", status="422")
+
+    body = json.dumps(result["content"])
+    return Response(body, mimetype="application/json")
+
 
 if __name__ == "__main__":
     start_server()  # Ensure it runs when executed directly
