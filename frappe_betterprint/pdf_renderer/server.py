@@ -60,6 +60,11 @@ def application(environ, start_response):
 
     return response(environ, start_response)
 
+
+def status(_):
+    return Response("BETTERPRINT OK", mimetype="text/plain")
+
+
 def generate_betterprint_pdf(data):
     errors = validation.validate(
         data,
