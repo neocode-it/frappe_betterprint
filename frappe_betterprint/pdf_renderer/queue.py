@@ -9,11 +9,15 @@ class WorkerQueue:
 
     _q = queue.Queue()
 
-    def run_and_wait(self, command: str, content: dict = {}):
+    def run_and_wait(self, command: str, content: dict = None, timeout: int = 30):
         key = uuid.uuid4()
         self._q.put({"key": key, "command": command, **content})
 
         with self._result_condition:
+            if not self._result_condition.wait_for(lambda: key in self._result, timeout):
+                raise TimeoutError(f"Operation timed out after {timeout} seconds.")
+
+            return self._result.pop(key)
 
     def length(self):
         return self._q.qsize()
