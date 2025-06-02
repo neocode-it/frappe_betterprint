@@ -14,11 +14,9 @@ class WorkerQueue:
         self._q.put({"key": key, "command": command, **content})
 
         with self._result_condition:
-            while not key in self._result:
-                self._result_condition.wait()
-            result = self._result[key]
-            self._result.pop(key)
-            return result
+
+    def length(self):
+        return self._q.qsize()
 
     def get_task(self):
         return self._q.get(timeout=1)
