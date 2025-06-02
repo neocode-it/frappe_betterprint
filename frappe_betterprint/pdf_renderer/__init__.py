@@ -46,7 +46,6 @@ def start_server(foreground=False):
                 env=os.environ,
             )
     except Exception as e:
-        print(e)
         frappe.throw("ERROR: Couldn't start betterprint_server.")
 
 
