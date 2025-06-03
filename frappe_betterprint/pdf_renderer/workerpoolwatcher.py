@@ -14,3 +14,13 @@ class WorkerPoolWatcher(threading.Thread):
         self.min_threads = min_threads
         self.max_threads = max_threads
 
+    def _stop_thread(self):
+        if self.threads:
+            self.threads[0].stop()
+            self.threads.pop(0)
+
+    def _start_thread(self):
+        thread = WorkerThread(self.task_queue)
+        self.threads.append(thread)
+        thread.start()
+
