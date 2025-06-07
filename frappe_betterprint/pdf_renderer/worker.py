@@ -24,6 +24,7 @@ class WorkerThread(threading.Thread):
         playwright = None
         browser = None
         task = None
+        page = None
 
         try:
             playwright = sync_playwright().start()
@@ -33,30 +34,39 @@ class WorkerThread(threading.Thread):
                     task = self.queue.get_task()
 
                     if task["command"] == "generate-betterprint-pdf":
-                        result = self.generate_betterprint_pdf(task, browser)
+                        page = browser.new_page()
+                        result = self.generate_betterprint_pdf(task, page)
 
                     else:
                         result = {"error": True, "description": "WORKER ERROR: Command not found"}
 
-                    if result is None:
-                        result = {"error": True, "content": "Missing response from worker"}
-
-                    result = {"error": False, "content": "", **result}
+                    # Apply default value if the fields are missing
+                    result = {"error": False, "content": "No response from PDF worker", **result}
                     self.queue.task_done(task, result)
 
+                    # Clean up after task completion
+                    task = None
+                    if page:
+                        page.close()
+                        page = None
+
                 except queue.Empty:
-                    time.sleep(0.2)
+                    time.sleep(0.1)
 
-        except Exception as _:
-            print("Exception occurred in Workerthread. Gathering log data and restart worker...")
-
+        except Exception as e:
             # Check if there was an interrupt within an ongoing task.
             # If so, terminate task and report error
             if task:  # Ongoing task?
-                self.queue.task_done(task, {"error": True, "content": "Error ocurred in workerthread"})
+                error_details = {
+                    "message": f"Error occurred in workerthread: {str(e)}",
+                    "type": type(e).__name__,  # Exception type
+                    "details": e.args,  # Additional error details
+                }
 
-            # Throw exception to signal an issue for the worker_backbone
-            raise Exception("Important! Required to signal worker_backbone there went something wrong")
+                self.queue.task_done(task, {"error": True, "content": error_details})
+            # Keep exception to allow the workerthread to quit & restart
+            raise
+
         finally:
             # Try to close browser and playwright if they are initialized.
             # Might fail too, depending on the exception.
