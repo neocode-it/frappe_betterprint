@@ -251,11 +251,20 @@
               this.parentElement = parentElement;
             }
             preparePrintLayout() {
+              let time = performance.now();
               this.#addPrintWrapper();
-              this.#removeMediaPrintRules();
+              this.#ensureCssAccess();
+              this.#convertExternalStyleSheetsInline();
+              this.#replaceInvalidStyleRules();
+              // this.#removeMediaPrintRules();
               this.#addBasePrintStyles();
               this.#determinePageDimensions();
               this.#setPrintPageSize();
+              console.log(
+                `PaginateJS: Prepared print layout in ${Math.round(
+                  performance.now() - time
+                )}ms`
+              );
             }
             finishPrintLayout() {
               this.#adjustLastPage();
@@ -284,8 +293,11 @@
             /**
              * Will make sure all referenced css files will be accessible.
              *
-             * In case of missing access (e.g. CORS preventing JS to read rules), this method
-             * will fetch the stylesheet manually and replace it inline.
+             * Backgrounds: In order to parse CSS using JS (which paginate.js depends on), it's required that cors ist allowed
+             * for all external stylesheets and crossorigin="anonymous" attribute is set. If latter is not set
+             * (which will only load css, but still prevent access), we can try to load it manuelly using xhr request.
+             *
+             * On error, the stylesheet will be removed to prevent issues later down the line.
              */
             #ensureCssAccess() {
               const targetDocument = this.parentElement.ownerDocument;
@@ -315,11 +327,270 @@
                     }
                   } catch (error) {
                     console.error(
-                      `Network/Browser error while fetching ${link.href}, some rules won't be applied: `,
+                      `PaginateJS is unable to access stylesheet rules from ${link.href}, likely due to CORS restrictions.`,
+                      "Ensure that the external stylesheets have the correct `Access-Control-Allow-Origin` header set on the server to allow JavaScript to read the CSS rules.",
+                      "Network/Browser error details:",
                       error
                     );
+                    link.remove();
                   }
                 });
+            }
+
+            /**
+             * Convert external stylesheets into inline styles in order to process them better
+             *
+             * Requires css read access for JS in order to be able reading stylesheets
+             */
+            #convertExternalStyleSheetsInline() {
+              const targetDocument = this.parentElement.ownerDocument;
+              let cssText = "";
+              const externalStylesheets = [
+                ...targetDocument.styleSheets,
+              ].filter((sheet) => sheet.href);
+              externalStylesheets.forEach((styleSheet) => {
+                try {
+                  Array.from(styleSheet.cssRules).forEach((rule) => {
+                    cssText += rule.cssText + "\n";
+                  });
+                } catch (e) {
+                  console.error(
+                    `Could not access stylesheet: ${styleSheet.href}`,
+                    e
+                  );
+                }
+              });
+
+              // Remove the external stylesheet after replacing
+              targetDocument
+                .querySelectorAll("link[rel='stylesheet']")
+                .forEach((styleTag) => {
+                  styleTag.remove();
+                });
+
+              // Insert stlysheets inline
+              let newStyleTag = document.createElement("style");
+              newStyleTag.innerHTML = cssText;
+              targetDocument.head.appendChild(newStyleTag);
+            }
+
+            /**
+             * Replaces viewport width (vw) and height (vh) with absolute pixel values.
+             *
+             * @param {string} string - The CSS string to convert.
+             * @return {string} - The converted CSS string with vw and vh replaced by px.
+             */
+            #replaceViewportSizeWithAbsolute(string) {
+              const convertedStyle = string.replace(
+                /(-?\d+|-?\d*\.\d+)(vw|vh)/g,
+                (match, value, unit) => {
+                  const numericValue = parseFloat(value);
+                  let pxValue;
+                  if (unit === "vw") {
+                    pxValue = (numericValue / 100) * 1080; // Convert vw to px
+                  } else if (unit === "vh") {
+                    pxValue = (numericValue / 100) * 720; // Convert vh to px
+                  }
+                  return `${Math.round(pxValue)}px`; // Replace with pixel value
+                }
+              );
+              return convertedStyle;
+            }
+
+            /**
+             * Replaces VW or VH with fixed height or width in order to prevent relative sizes
+             */
+            #replaceInvalidStyleRules() {
+              let start_time = performance.now();
+              const targetDocument = this.parentElement.ownerDocument;
+
+              // Check all elements with style attribute
+              targetDocument.querySelectorAll("[style]").forEach((element) => {
+                let style = element.getAttribute("style");
+                style = this.#replaceViewportSizeWithAbsolute(style);
+                element.setAttribute("style", style);
+              });
+
+              // Check all stylesheets and replace invalid rules for PaginateJS
+              Array.from(targetDocument.styleSheets).forEach((styleSheet) => {
+                try {
+                  for (let i = 0; i < styleSheet.cssRules.length; i++) {
+                    this.#recursiveRemoveRules(styleSheet, i); // Call the function for each rule
+                  }
+                  // Array.from(styleSheet.cssRules).forEach((rule) => {
+                  //   this.#recursiveRemoveRules2(styleSheet, rule);
+                  // });
+                } catch (e) {
+                  console.log(e);
+                  console.error(
+                    `Could not access stylesheet: ${styleSheet.href}`,
+                    e
+                  );
+                }
+              });
+              let end_time = performance.now();
+              console.log(
+                `PaginateJS: Replaced vw/vh with absolute values in ${
+                  end_time - start_time
+                }ms`
+              );
+            }
+            #recursiveRemoveRules(styleSheet, ruleIndex) {
+              // Ensure rule exists
+              let rule = styleSheet.cssRules[ruleIndex];
+              // console.log("MAIN: Processing rule:", rule?.cssText);
+              if (!rule) return;
+              const vwRegex = /(\d+(\.\d+)?)vw/g;
+              const vhRegex = /(\d+(\.\d+)?)vh/g;
+              if (rule.media && rule.type === CSSRule.MEDIA_RULE) {
+                // console.log("I was here..");
+                // console.log(rule.cssText);
+
+                // Extract inner styles without modifying the original rule
+                let innerStyles = "";
+                for (let i = 0; i < rule.cssRules.length; i++) {
+                  innerStyles += rule.cssRules[i].cssText + "\n";
+                }
+
+                // Create a new media rule with the desired media condition
+                let newRuleText = `@media screen { ${innerStyles} }`;
+
+                // Remove old rule and insert new one
+                styleSheet.deleteRule(ruleIndex);
+                styleSheet.insertRule(newRuleText, ruleIndex);
+
+                // Re-fetch the rule after insertion
+                rule = styleSheet.cssRules[ruleIndex];
+                // console.log("Refetched rule:", rule?.cssText);
+
+                // // Differentiate between print, dark mode, etc.
+                // const mediaText = rule.media.mediaText.toLowerCase();
+                // if (mediaText.includes("print")) {
+                //   styleSheet.deleteRule(ruleIndex);
+                // } else if (/min-width|max-width/.test(mediaText)) {
+                //   styleSheet.deleteRule(ruleIndex);
+                // }
+              }
+              if (rule.style) {
+                for (let i = 0; i < rule.style.length; i++) {
+                  let property = rule.style[i];
+                  let value = rule.style.getPropertyValue(property);
+
+                  // Convert `vw` to pixels
+                  if (value.includes("vw") || value.includes("vh")) {
+                    value = this.#replaceViewportSizeWithAbsolute(value);
+                    rule.style.setProperty(property, value);
+                  }
+                }
+              }
+              // Recursively check for nested rules
+              if (rule.cssRules) {
+                // console.log("Parent rule:", rule.cssText);
+                for (let i = 0; i < rule.cssRules.length; i++) {
+                  // console.log(
+                  //   "Processing nested rule:",
+                  //   rule.cssRules[i].cssText
+                  // );
+                  this.#recursiveRemoveRules(rule, i);
+                }
+              }
+              return;
+
+              // else if (rule.style) {
+              //   console.log("Processing rule:", rule.cssText);
+              //   for (let i = 0; i < rule.style.length; i++) {
+              //     let property = rule.style[i];
+              //     let value = rule.style.getPropertyValue(property);
+              //     if (vwRegex.test(value)) {
+              //       let updatedValue = value.replace(
+              //         vwRegex,
+              //         (match, num) => `calc(${num} * 0.01 * 1000px)`
+              //       );
+              //       rule.style.setProperty(property, updatedValue);
+              //     }
+              //     if (vhRegex.test(value)) {
+              //       let updatedValue = value.replace(
+              //         vhRegex,
+              //         (match, num) => `calc(${num} * 0.01 * 1000px)`
+              //       );
+              //       rule.style.setProperty(property, updatedValue);
+              //     }
+              //   }
+              // }
+            }
+            #recursiveRemoveRules2(styleSheet, rule) {
+              // TODO: Add way to remove/edit rules
+
+              const vwRegex = /(\d+(\.\d+)?)vw/g;
+              const vhRegex = /(\d+(\.\d+)?)vh/g;
+              if (rule.media && rule.type === CSSRule.MEDIA_RULE) {
+                // Create a new media rule using `@media screen`
+                let newRuleText = `@media screen { ${rule.cssText.replace(
+                  rule.media.mediaText,
+                  ""
+                )} }`;
+
+                // Remove old rule and insert new one
+                // styleSheet.deleteRule(i);
+                // styleSheet.insertRule(newRuleText, i);
+
+                // Maybe differentiate between print, dark mode, etc. ?
+
+                // const mediaText = rule.media.mediaText.toLowerCase();
+                // if (mediaText === "print") {
+                //   styleSheet.deleteRule(rule);
+                // } else if (/min-width|max-width/.test(mediaText)) {
+                //   styleSheet.deleteRule(rule);
+                // }
+              }
+              if (rule.style) {
+                for (const style of rule.style) {
+                  let value = rule.style.getPropertyValue(style);
+
+                  // Convert `vw` to pixels
+                  if (value.includes("vw")) {
+                    let vwValue = parseFloat(value);
+                    let pixelValue = (vwValue / 100) * viewportWidth;
+                    rule.style.setProperty(property, `${pixelValue}px`);
+                  }
+
+                  // Convert `vh` to pixels
+                  if (value.includes("vh")) {
+                    let vhValue = parseFloat(value);
+                    let pixelValue = (vhValue / 100) * viewportHeight;
+                    rule.style.setProperty(property, `${pixelValue}px`);
+                  }
+                }
+              }
+
+              // Recursively check for nested rules
+              if (rule.cssRules) {
+                for (const subRule of rule.cssRules) {
+                  this.#recursiveRemoveRules(styleSheet, subRule);
+                }
+              }
+
+              // else if (rule.style) {
+              //   console.log("Processing rule:", rule.cssText);
+              //   for (let i = 0; i < rule.style.length; i++) {
+              //     let property = rule.style[i];
+              //     let value = rule.style.getPropertyValue(property);
+              //     if (vwRegex.test(value)) {
+              //       let updatedValue = value.replace(
+              //         vwRegex,
+              //         (match, num) => `calc(${num} * 0.01 * 1000px)`
+              //       );
+              //       rule.style.setProperty(property, updatedValue);
+              //     }
+              //     if (vhRegex.test(value)) {
+              //       let updatedValue = value.replace(
+              //         vhRegex,
+              //         (match, num) => `calc(${num} * 0.01 * 1000px)`
+              //       );
+              //       rule.style.setProperty(property, updatedValue);
+              //     }
+              //   }
+              // }
             }
             #removeMediaPrintRules() {
               this.#ensureCssAccess();
@@ -340,7 +611,6 @@
                     if (mediaText === "print") {
                       styleSheet.deleteRule(j);
                     } else if (/min-width|max-width/.test(mediaText)) {
-                      console.log(rule);
                       styleSheet.deleteRule(j);
                     }
                   }
