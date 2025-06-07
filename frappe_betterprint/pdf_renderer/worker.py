@@ -69,7 +69,7 @@ class WorkerThread(threading.Thread):
 
         finally:
             # Try to close browser and playwright if they are initialized.
-            # Might fail too, depending on the exception
+            # Might fail too, depending on the exception.
             if browser:
                 browser.close()
             if playwright:
