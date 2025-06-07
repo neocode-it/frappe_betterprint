@@ -83,8 +83,13 @@ def get_betterprint_server_pdf(html, domain):
         headers={"content-type": "application/json"},
         timeout=15,
     )
+
     if response.status_code != 200:
-        frappe.throw("PDF generation failed. Invalid status code from betterprint_server")
+        frappe.throw(
+            f"""PDF generation failed. Invalid status code from betterprint_server. \n
+            Status code: {response.status_code} \n
+            Response: {response.text}"""
+        )
 
     pdf_content = None
 
