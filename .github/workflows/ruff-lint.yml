@@ -3,75 +3,43 @@ name: Ruff Formatting Check
 on:
   push:
     branches:
-      - '*' # Run on all branches for pushes
+      - '*' # Runs on all branches for push events
   pull_request:
     branches:
-      - '*' # Run on all branches for pull requests
+      - '*' # Runs on all branches for PRs
 
 jobs:
-  lint:
-    name: Run Ruff
+  run:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout Repository
-      # Use actions/checkout@v4 for the latest version and features
-      uses: actions/checkout@v4
-      # For pull requests, fetch the merge commit to get accurate diffs
-      with:
-        fetch-depth: 0 # Fetch all history for accurate diffing
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || 'HEAD' }}
+          fetch-depth: 0
 
-    - name: Set up Python
-      # Use actions/setup-python@v5 for the latest version
-      uses: actions/setup-python@v5
-      with:
-        python-version: '3.x'
-        # Optional: Cache pip dependencies for faster runs
-        cache: 'pip'
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+          cache: 'pip'
 
-    - name: Install Ruff
-      run: pip install ruff
+      - name: Install Ruff
+        run: pip install ruff
 
-    - name: Get Changed Python Files
-      id: changed_files
-      run: |
-        # Initialize an empty array for changed files
-        changed_python_files=()
+      - name: Get Changed Python Files
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const { execSync } = require('child_process');
+            const baseRef = process.env.GITHUB_BASE_REF || 'HEAD~1';
+            let rawFiles = execSync(`git diff --name-only ${baseRef} HEAD | grep '\\.py$' || true`).toString();
+            const files = rawFiles.split('\n').filter(Boolean);
 
-        # Determine the base commit for comparison
-        # For pull requests, compare against the merge base of the target branch
-        # For pushes, compare against the immediate previous commit
-        if ${{ github.event_name == 'pull_request' }}; then
-          # Get the list of changed files from the PR's base to head
-          # This is more robust for PRs as it considers the state when merged
-          files=$(git diff --name-only origin/${{ github.base_ref }}...HEAD | grep '\.py$')
-        else
-          # For pushes, compare against the previous commit
-          files=$(git diff --name-only HEAD~1 HEAD | grep '\.py$')
-        fi
+            console.log(`Changed Python files:`, files);
+            core.setOutput("changed_files", files.join(' '));
 
-        # Add files to the array, handling cases where 'files' might be empty
-        if [ -n "$files" ]; then
-          changed_python_files=("${changed_python_files[@]}" $files)
-        fi
-
-        # If no Python files were directly changed, but there are staged changes (e.g., during rebase or merge commits)
-        # or if the above diff didn't catch everything, also check for modified files in the working tree.
-        # This can be important for scenarios where the diff might be tricky.
-        if [ ${#changed_python_files[@]} -eq 0 ]; then
-          staged_files=$(git ls-files -m | grep '\.py$')
-          if [ -n "$staged_files" ]; then
-            changed_python_files=("${changed_python_files[@]}" $staged_files)
-          fi
-        fi
-
-        # Remove duplicate files
-        unique_changed_python_files=$(printf "%s\n" "${changed_python_files[@]}" | sort -u)
-
-        echo "Detected changed Python files: $unique_changed_python_files"
-        echo "CHANGED_FILES=$unique_changed_python_files" >> "$GITHUB_ENV"
-
-    - name: Run Ruff Formatting Check on Changed Files
-      # Only run if there are changed Python files to check
-      if: env.CHANGED_FILES != ''
-      run: ruff format --check $CHANGED_FILES
+      - name: Run Ruff Formatting Check on Changed Files
+        if: steps.changed_files.outputs.changed_files != ''
+        run: ruff format --check ${{ steps.changed_files.outputs.changed_files }}
