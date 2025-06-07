@@ -7,11 +7,11 @@ import frappe
 
 def install_playwright_browsers():
     print("Installing betterprint browsers...")
-    bench_path = frappe.utils.get_site_path() + "/betterprint_browsers"
+    betterprint_path = frappe.utils.get_site_path() + "/betterprint_browser"
 
     # Install browser executables to bench/playwright folder
     # -> Required to share one exec. with all worker in every container
-    os.environ["PLAYWRIGHT_BROWSERS_PATH"] = bench_path
+    os.environ["PLAYWRIGHT_BROWSERS_PATH"] = betterprint_path
 
     result = subprocess.run([sys.executable, "-m", "playwright", "install", "chromium"])
 
