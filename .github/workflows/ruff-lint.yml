@@ -25,5 +25,11 @@ jobs:
     - name: Install Ruff
       run: pip install ruff
 
-    - name: Run Ruff Formatting Check
-      run: ruff format --check .
+    - name: Get Changed Python Files
+      id: changed_files
+      run: |
+        echo "CHANGED_FILES=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep '\.py$')" >> $GITHUB_ENV
+
+    - name: Run Ruff Formatting Check on Changed Files
+      if: env.CHANGED_FILES != ''
+      run: ruff format --check $CHANGED_FILES
