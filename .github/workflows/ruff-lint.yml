@@ -41,5 +41,7 @@ jobs:
             core.setOutput("changed_files", files.join(' '));
 
       - name: Run Ruff Formatting Check on Changed Files
-        if: steps.changed_files.outputs.changed_files != ''
-        run: ruff format --check ${{ steps.changed_files.outputs.changed_files }}
+        if: steps.changed_files.outputs.changed_files != null
+        run: |
+          echo "Running Ruff on: ${{ steps.changed_files.outputs.changed_files }}"
+          echo "${{ steps.changed_files.outputs.changed_files }}" | xargs ruff format --check
