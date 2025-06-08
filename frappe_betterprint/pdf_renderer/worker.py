@@ -8,6 +8,7 @@ from playwright.sync_api import sync_playwright
 
 
 class WorkerThread(threading.Thread):
+        
         def __init__(self, queue):
         super().__init__()
         self.queue = queue
