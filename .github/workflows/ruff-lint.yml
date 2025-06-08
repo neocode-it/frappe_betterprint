@@ -39,9 +39,12 @@ jobs:
 
             console.log(`Changed Python files:`, files);
             core.setOutput("changed_files", files.join(' '));
+      - name: Debug Changed Files
+        run: echo "Ruff will run on: ${{ steps.changed_files.outputs.changed_files }}"
+
 
       - name: Run Ruff Formatting Check on Changed Files
-        if: steps.changed_files.outputs.changed_files != null
+        if: ${{ steps.changed_files.outputs.changed_files }}
         run: |
           echo "Running Ruff on: ${{ steps.changed_files.outputs.changed_files }}"
           echo "${{ steps.changed_files.outputs.changed_files }}" | xargs ruff format --check
