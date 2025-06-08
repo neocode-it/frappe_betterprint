@@ -12,6 +12,7 @@ class WorkerThread(threading.Thread):
         def __init__(self, queue):
         super().__init__()
         self.queue = queue
+        
         self.daemon = True
         self.stop_event = threading.Event()
 

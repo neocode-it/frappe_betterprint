@@ -16,7 +16,7 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.pull_request.head.sha }}
+          ref: ${{ github.event.pull_request.head.sha || 'HEAD' }}
           fetch-depth: 0
 
       - name: Set up Python
@@ -29,6 +29,7 @@ jobs:
         run: pip install ruff
 
       - name: Get Changed Python Files
+        id: changed_files
         uses: actions/github-script@v6
         with:
           script: |
@@ -39,12 +40,12 @@ jobs:
 
             console.log(`Changed Python files:`, files);
             core.setOutput("changed_files", files.join(' '));
+
       - name: Debug Changed Files
         run: echo "Ruff will run on: ${{ steps.changed_files.outputs.changed_files }}"
 
-
       - name: Run Ruff Formatting Check on Changed Files
-        if: ${{ steps.changed_files.outputs.changed_files }}
+        if: steps.changed_files.outputs.changed_files != ''
         run: |
           echo "Running Ruff on: ${{ steps.changed_files.outputs.changed_files }}"
-          echo "${{ steps.changed_files.outputs.changed_files }}" | xargs ruff format --check
+          echo "${{ steps.changed_files.outputs.changed_files }}" | tr ' ' '\n' | xargs ruff format --check
