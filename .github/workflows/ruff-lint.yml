@@ -3,33 +3,53 @@ name: Ruff Formatting Check
 on:
   push:
     branches:
-      - '*'
+      - '*' # Runs on all branches for push events
   pull_request:
     branches:
-      - '*'
+      - '*' # Runs on all branches for PRs
 
 jobs:
   lint:
-    name: Run Ruff
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout Repository
-      uses: actions/checkout@v3
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
 
-    - name: Set up Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.x'
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+          cache: 'pip'
 
-    - name: Install Ruff
-      run: pip install ruff
+      - name: Install Ruff
+        run: pip install ruff
 
-    - name: Get Changed Python Files
-      id: changed_files
-      run: |
-        echo "CHANGED_FILES=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep '\.py$')" >> $GITHUB_ENV
+      - name: Get Changed Python Files
+        id: changed_files 
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const { execSync } = require('child_process');
+            const baseRef = process.env.GITHUB_BASE_REF || 'HEAD~1';
+            let rawFiles = execSync(`git diff --name-only ${baseRef} HEAD | grep '\\.py$' || true`).toString();
+            const files = rawFiles.split('\n').filter(Boolean);
 
-    - name: Run Ruff Formatting Check on Changed Files
-      if: env.CHANGED_FILES != ''
-      run: ruff format --check $CHANGED_FILES
+            console.log(`Changed Python files:`, files);
+            core.setOutput("changed_files", files.join(' '));
+
+      - name: Debug Changed Files
+        run: |
+          echo "Changed files output: \"${{ steps.changed_files.outputs.changed_files }}\""
+          if [[ -z "${{ steps.changed_files.outputs.changed_files }}" ]]; then echo "No Python files changed."; fi
+
+
+      - name: Run Ruff Formatting Check on Changed Files
+        if: ${{ steps.changed_files.outputs.changed_files != '' }}
+        run: |
+          echo "Running Ruff on: ${{ steps.changed_files.outputs.changed_files }}"
+          echo "${{ steps.changed_files.outputs.changed_files }}" | tr ' ' '\n' | xargs ruff format --check
+
