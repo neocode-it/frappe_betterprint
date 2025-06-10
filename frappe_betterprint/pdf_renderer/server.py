@@ -1,15 +1,16 @@
 import os
-import setproctitle
 import json
 
 from waitress import serve
+import setproctitle
 from filelock import Timeout, FileLock
 from werkzeug.wrappers import Request, Response
-import frappe
 
-from frappe_betterprint.pdf_renderer.queue import global_queue
-from frappe_betterprint.pdf_renderer.worker import launch_worker_thread
+
+import frappe
 import frappe_betterprint.pdf_renderer.validation as validation
+from frappe_betterprint.pdf_renderer.workerpoolwatcher import WorkerPoolWatcher
+from frappe_betterprint.pdf_renderer.queue import global_queue
 
 
 def start_server(public=False):
@@ -23,13 +24,19 @@ def start_server(public=False):
         with lock.acquire(blocking=False):
             print("Serving App on localhost using port 39584. Press Ctrl. + C to stop...")
 
-            # Launch playwright worker thread
-            launch_worker_thread(global_queue)
+            # Launch the WorkerPoolManager, which will keep worker alive
+            # And manages the worker amount
+            watcher = WorkerPoolWatcher(global_queue)
+            watcher.start()
 
             # Launch http server as interface
             if public:
+                # In order to run more than 4 requests simoultaneously,
+                # we would require To run serve(threads = 10)
                 serve(application, host="0.0.0.0", port=39584)
             else:
+                # In order to run more than 4 requests simoultaneously,
+                # we would require To run serve(threads = 10)
                 serve(application, host="127.0.0.1", port=39584)
 
     except Timeout:
