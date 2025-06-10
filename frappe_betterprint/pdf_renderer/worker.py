@@ -75,6 +75,54 @@ class WorkerThread(threading.Thread):
             if playwright:
                 playwright.stop()
 
+    def generate_betterprint_pdf(self, task: dict, page) -> dict:
+        """
+        Generates a PDF from HTML content, waiting for a custom event or timeout.
+        """
+        # Convert origin url into origin domain
+        parsed_url = urlparse(task["allow_origin"])
+        full_domain = parsed_url.netloc
+        domain = full_domain.split(":")[0]  # Remove the port if present
+
+        # # Ignore CORS for this domain
+        # # Workaround for: Chrome will always block CORS for local html files
+        self._playwright_add_cors_allow_route(page, domain)
+
+        # Add page content
+        page.set_content(task["html"])
+
+        try:
+            # Wait for the "betterPrintFinished" event with a timeout of 30 seconds (30000 ms)
+            page.evaluate("""
+                document.addEventListener('betterPrintFinished', () => {
+                    window.betterPrintFinished = true;
+                });
+            """)
+            page.wait_for_function("window.betterPrintFinished === true", timeout=30000)
+
+            dimensions = page.evaluate("""() => {
+                const page = document.querySelector(".paginatejs-pages .page");
+                const style = getComputedStyle(page);
+                const width = style.width;
+                const height = style.height;
+                return {"width": width, "height": height};
+                }
+            """)
+        except Exception:
+            return {
+                "content": "Failed to run betterprint script or get the page dimensions",
+                "error": True,
+            }
+
+        page.pdf(
+            width=dimensions["width"],
+            height=dimensions["height"],
+            path=task["filepath"],
+            print_background=True,
+        )
+
+        return {"content": "successful"}
+
     def _playwright_add_cors_allow_route(self, page, allow_domain):
         domain_pattern = rf"^https?://{re.escape(allow_domain)}(:[0-9]+)?(/|$)"
         page.route(re.compile(domain_pattern), lambda route: self._playwright_cors_unset(route))
