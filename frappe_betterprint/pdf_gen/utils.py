@@ -17,8 +17,8 @@ def get_file_data_from_writer(writer_obj):
     return stream.read()
 
 
-def prepare_page_size(options: str) -> dict:
-    """Validates the page size and return it's dimensions"""
+def extract_page_size(options: str) -> dict:
+    """Will extract page size from options and return its dimensions in mm if set or None if not set."""
     page_size = options.get("page-size")
 
     # Custom print size
@@ -29,7 +29,7 @@ def prepare_page_size(options: str) -> dict:
         }
 
     else:
-        return page_dimensions.get(page_size, page_dimensions["A4"])
+        return page_dimensions.get(page_size, None)
 
 
 def html_inject_print_format(html: str, print_format: str) -> str:
