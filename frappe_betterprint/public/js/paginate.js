@@ -252,7 +252,6 @@
               this.targetDocument = parentElement.ownerDocument;
             }
             preparePrintLayout() {
-              let time = performance.now();
               this.#addPrintWrapper();
               this.#ensureCssAccess();
               this.#convertExternalStyleSheetsInline();
@@ -262,11 +261,6 @@
               this.#addBasePrintStyles();
               this.#determinePageDimensions();
               this.#setPrintPageSize();
-              console.log(
-                `PaginateJS: Prepared print layout in ${Math.round(
-                  performance.now() - time
-                )}ms`
-              );
             }
             finishPrintLayout() {
               this.#adjustLastPage();
@@ -422,76 +416,64 @@
              * Replaces VW or VH with fixed height or width in order to prevent relative sizes
              */
             #replaceInvalidStyleRules() {
-              let start_time = performance.now();
-              const targetDocument = this.parentElement.ownerDocument;
-
               // Check all elements with style attribute
-              targetDocument.querySelectorAll("[style]").forEach((element) => {
-                let style = element.getAttribute("style");
-                style = this.#replaceViewportSizeWithAbsolute(style);
-                element.setAttribute("style", style);
-              });
+              this.targetDocument
+                .querySelectorAll("[style]")
+                .forEach((element) => {
+                  let style = element.getAttribute("style");
+                  style = this.#replaceViewportSizeWithAbsolute(style);
+                  element.setAttribute("style", style);
+                });
 
               // Check all stylesheets and replace invalid rules for PaginateJS
-              Array.from(targetDocument.styleSheets).forEach((styleSheet) => {
-                try {
-                  for (let i = 0; i < styleSheet.cssRules.length; i++) {
-                    this.#recursiveRemoveRules(styleSheet, i); // Call the function for each rule
+              Array.from(this.targetDocument.styleSheets).forEach(
+                (styleSheet) => {
+                  try {
+                    for (let i = 0; i < styleSheet.cssRules.length; i++) {
+                      this.#recursiveRemoveRules(styleSheet, i); // Call the function for each rule
+                    }
+                  } catch (e) {
+                    console.error(
+                      `Could not access stylesheet: ${styleSheet.href}`,
+                      e
+                    );
                   }
-                  // Array.from(styleSheet.cssRules).forEach((rule) => {
-                  //   this.#recursiveRemoveRules2(styleSheet, rule);
-                  // });
-                } catch (e) {
-                  console.log(e);
-                  console.error(
-                    `Could not access stylesheet: ${styleSheet.href}`,
-                    e
-                  );
                 }
-              });
-              let end_time = performance.now();
-              console.log(
-                `PaginateJS: Replaced vw/vh with absolute values in ${
-                  end_time - start_time
-                }ms`
               );
             }
+
+            /**
+             * Recursively processes CSS rules to remove undesired css rules
+             * like remove media queries or convert vw/vh units to pixels.
+             *
+             * This function will edit the stylesheets directly,
+             * so the passed rule index should be re-checked after returning if he is still valid.
+             *
+             * @param {CSSRule} styleSheet - parent rule/stylesheet to process
+             * @param {int} ruleIndex - index of the rule to process
+             * @returns {void}
+             */
             #recursiveRemoveRules(styleSheet, ruleIndex) {
               // Ensure rule exists
               let rule = styleSheet.cssRules[ruleIndex];
-              // console.log("MAIN: Processing rule:", rule?.cssText);
               if (!rule) return;
-              const vwRegex = /(\d+(\.\d+)?)vw/g;
-              const vhRegex = /(\d+(\.\d+)?)vh/g;
+
+              // Neutralize media queries -> apply rules always
               if (rule.media && rule.type === CSSRule.MEDIA_RULE) {
-                // console.log("I was here..");
-                // console.log(rule.cssText);
+                // Insert inner rules right after the media rule
+                Array.from(rule.cssRules).forEach((innerRule, i) => {
+                  styleSheet.insertRule(innerRule.cssText, ruleIndex + i + 1);
+                });
 
-                // Extract inner styles without modifying the original rule
-                let innerStyles = "";
-                for (let i = 0; i < rule.cssRules.length; i++) {
-                  innerStyles += rule.cssRules[i].cssText + "\n";
-                }
-
-                // Create a new media rule with the desired media condition
-                let newRuleText = `@media screen { ${innerStyles} }`;
-
-                // Remove old rule and insert new one
+                // Remove the original media rule
                 styleSheet.deleteRule(ruleIndex);
-                styleSheet.insertRule(newRuleText, ruleIndex);
 
                 // Re-fetch the rule after insertion
                 rule = styleSheet.cssRules[ruleIndex];
-                // console.log("Refetched rule:", rule?.cssText);
-
-                // // Differentiate between print, dark mode, etc.
-                // const mediaText = rule.media.mediaText.toLowerCase();
-                // if (mediaText.includes("print")) {
-                //   styleSheet.deleteRule(ruleIndex);
-                // } else if (/min-width|max-width/.test(mediaText)) {
-                //   styleSheet.deleteRule(ruleIndex);
-                // }
               }
+
+              // If the rule is a style rule, process its styles
+              // This will convert relative vw/vh to absolute pixels
               if (rule.style) {
                 for (let i = 0; i < rule.style.length; i++) {
                   let property = rule.style[i];
@@ -506,38 +488,11 @@
               }
               // Recursively check for nested rules
               if (rule.cssRules) {
-                // console.log("Parent rule:", rule.cssText);
                 for (let i = 0; i < rule.cssRules.length; i++) {
-                  // console.log(
-                  //   "Processing nested rule:",
-                  //   rule.cssRules[i].cssText
-                  // );
                   this.#recursiveRemoveRules(rule, i);
                 }
               }
               return;
-
-              // else if (rule.style) {
-              //   console.log("Processing rule:", rule.cssText);
-              //   for (let i = 0; i < rule.style.length; i++) {
-              //     let property = rule.style[i];
-              //     let value = rule.style.getPropertyValue(property);
-              //     if (vwRegex.test(value)) {
-              //       let updatedValue = value.replace(
-              //         vwRegex,
-              //         (match, num) => `calc(${num} * 0.01 * 1000px)`
-              //       );
-              //       rule.style.setProperty(property, updatedValue);
-              //     }
-              //     if (vhRegex.test(value)) {
-              //       let updatedValue = value.replace(
-              //         vhRegex,
-              //         (match, num) => `calc(${num} * 0.01 * 1000px)`
-              //       );
-              //       rule.style.setProperty(property, updatedValue);
-              //     }
-              //   }
-              // }
             }
             #recursiveRemoveRules2(styleSheet, rule) {
               // TODO: Add way to remove/edit rules
