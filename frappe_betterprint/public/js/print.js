@@ -68,7 +68,13 @@ class BetterPrint {
     } else {
       this.printContentElement.classList.add("rendered");
     }
-    this.renderPreview();
+
+    // workaround to ensure the iframe is loaded before rendering
+    // Styles won't be loaded earlier... dunno why yet
+    // Couldn't find any reason in the print app's code
+    setTimeout(() => {
+      this.renderPreview();
+    }, 500);
   }
 
   renderPreview() {
