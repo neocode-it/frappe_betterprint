@@ -68,7 +68,9 @@ class BetterPrint {
     } else {
       this.printContentElement.classList.add("rendered");
     }
-    this.renderPreview();
+    setTimeout(() => {
+      this.renderPreview();
+    }, 500);
   }
 
   renderPreview() {
