@@ -75,3 +75,15 @@ class WorkerThread(threading.Thread):
             if playwright:
                 playwright.stop()
 
+    def _playwright_add_cors_allow_route(self, page, allow_domain):
+        domain_pattern = rf"^https?://{re.escape(allow_domain)}(:[0-9]+)?(/|$)"
+        page.route(re.compile(domain_pattern), lambda route: self._playwright_cors_unset(route))
+
+    def _playwright_cors_unset(self, route):
+        try:
+            response = route.fetch()
+            headers = response.headers.copy()
+            headers["Access-Control-Allow-Origin"] = "*"
+            route.fulfill(status=response.status, headers=headers, body=response.body())
+        except Exception as e:
+            route.continue_()
