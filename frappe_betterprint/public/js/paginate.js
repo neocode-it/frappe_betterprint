@@ -464,21 +464,30 @@
               const vwRegex = /(\d+(\.\d+)?)vw/g;
               const vhRegex = /(\d+(\.\d+)?)vh/g;
               if (rule.media && rule.type === CSSRule.MEDIA_RULE) {
-                // console.log("I was here..");
-                // console.log(rule.cssText);
+                // Insert inner rules right after the media rule
+                Array.from(rule.cssRules).forEach((innerRule, i) => {
+                  styleSheet.insertRule(innerRule.cssText, ruleIndex + i + 1);
+                });
 
-                // Extract inner styles without modifying the original rule
-                let innerStyles = "";
-                for (let i = 0; i < rule.cssRules.length; i++) {
-                  innerStyles += rule.cssRules[i].cssText + "\n";
-                }
-
-                // Create a new media rule with the desired media condition
-                let newRuleText = `@media screen { ${innerStyles} }`;
-
-                // Remove old rule and insert new one
+                // Remove the original media rule
                 styleSheet.deleteRule(ruleIndex);
-                styleSheet.insertRule(newRuleText, ruleIndex);
+
+                //
+
+                // // Extract inner styles without modifying the original rule
+                // let innerStyles = "";
+                // for (let i = 0; i < rule.cssRules.length; i++) {
+                //   innerStyles += rule.cssRules[i].cssText + "\n";
+                // }
+
+                // // Create a new media rule with the desired media condition
+                // let newRuleText = `@media screen { ${innerStyles} }`;
+
+                // // Remove old rule and insert new one
+                // styleSheet.deleteRule(ruleIndex);
+                // styleSheet.insertRule(newRuleText, ruleIndex);
+
+                //
 
                 // Re-fetch the rule after insertion
                 rule = styleSheet.cssRules[ruleIndex];
