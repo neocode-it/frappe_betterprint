@@ -249,12 +249,14 @@
           class DocumentLayoutManager {
             constructor(parentElement) {
               this.parentElement = parentElement;
+              this.targetDocument = parentElement.ownerDocument;
             }
             preparePrintLayout() {
               let time = performance.now();
               this.#addPrintWrapper();
               this.#ensureCssAccess();
               this.#convertExternalStyleSheetsInline();
+              this.#moveStylesToHead();
               this.#replaceInvalidStyleRules();
               // this.#removeMediaPrintRules();
               this.#addBasePrintStyles();
@@ -300,11 +302,11 @@
              * On error, the stylesheet will be removed to prevent issues later down the line.
              */
             #ensureCssAccess() {
-              const targetDocument = this.parentElement.ownerDocument;
+              const targetDocument = this.targetDocument;
               targetDocument
                 .querySelectorAll('link[rel="stylesheet"]')
                 .forEach((link) => {
-                  const sheet = [...document.styleSheets].find(
+                  const sheet = [...targetDocument.styleSheets].find(
                     (s) => s.href === link.href
                   );
                   try {
@@ -343,35 +345,54 @@
              * Requires css read access for JS in order to be able reading stylesheets
              */
             #convertExternalStyleSheetsInline() {
-              const targetDocument = this.parentElement.ownerDocument;
               let cssText = "";
               const externalStylesheets = [
-                ...targetDocument.styleSheets,
+                ...this.targetDocument.styleSheets,
               ].filter((sheet) => sheet.href);
               externalStylesheets.forEach((styleSheet) => {
                 try {
+                  cssText = "";
                   Array.from(styleSheet.cssRules).forEach((rule) => {
                     cssText += rule.cssText + "\n";
                   });
+
+                  // Insert stlysheets inline
+                  let newStyleTag = document.createElement("style");
+                  newStyleTag.innerHTML = cssText;
+                  const linkTag = styleSheet.ownerNode;
+                  linkTag.parentNode.insertBefore(newStyleTag, linkTag);
                 } catch (e) {
                   console.error(
-                    `Could not access stylesheet: ${styleSheet.href}`,
+                    `Could not access and replace stylesheet: ${styleSheet.href}`,
                     e
                   );
                 }
               });
 
-              // Remove the external stylesheet after replacing
-              targetDocument
+              // Remove the external stylesheet after replacing,
+              // ensureing even if the stylesheet was not accessible, it will be removed
+              this.targetDocument
                 .querySelectorAll("link[rel='stylesheet']")
                 .forEach((styleTag) => {
                   styleTag.remove();
                 });
+            }
 
-              // Insert stlysheets inline
-              let newStyleTag = document.createElement("style");
-              newStyleTag.innerHTML = cssText;
-              targetDocument.head.appendChild(newStyleTag);
+            /**
+             * Moves all styles and stylesheets to the head of the document.
+             * This is necessary to ensure that styles won't be copied with the paged content.
+             * In addition, it will ensure that all styles keep beeing applied after edits document.styleSheets
+             */
+            #moveStylesToHead() {
+              const head = this.targetDocument.head;
+              const stylesAndLinks = this.targetDocument.querySelectorAll(
+                'style, link[rel="stylesheet"]'
+              );
+              stylesAndLinks.forEach((element) => {
+                if (!head.contains(element)) {
+                  head.appendChild(element);
+                }
+              });
             }
 
             /**
@@ -1345,7 +1366,7 @@
             while (doc.readyState !== "complete") {
               await new Promise((resolve) =>
                 // must be made iframe-save
-                document.defaultView.addEventListener("load", resolve, {
+                doc.defaultView.addEventListener("load", resolve, {
                   once: true,
                 })
               );
