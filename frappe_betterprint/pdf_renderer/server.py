@@ -66,7 +66,7 @@ def status(_):
 
 
 def generate_betterprint_pdf(data):
-    errors = validation.validate(
+    validation_errors = validation.validate(
         data,
         {
             "filepath": [validation.is_valid_pdf_filepath],
@@ -75,18 +75,22 @@ def generate_betterprint_pdf(data):
         },
     )
 
-    if errors:
-        print("Validation errors:", errors)
-        response = {"status": "failed", "errors": errors}
-        return Response(json.dumps(response), mimetype="application/json", status="422")
+    if validation_errors:
+        response = {
+            "message": "Invalid input data passed to betterprint_server",
+            "errors": validation_errors,
+        }
+        return Response(json.dumps(response), mimetype="application/json", status=422)
 
     result = global_queue.run_and_wait("generate-betterprint-pdf", data)
 
-    if result["error"]:
-        return Response(f"Input data invalid: {result['error']}", status="422")
+    error = result.get("error", False)
+    content = json.dumps(result.get("content"))
 
-    body = json.dumps(result["content"])
-    return Response(body, mimetype="application/json")
+    if error:
+        return Response(content, status="500", mimetype="application/json")
+
+    return Response(content, mimetype="application/json")
 
 
 if __name__ == "__main__":
