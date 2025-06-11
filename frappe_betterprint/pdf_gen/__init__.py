@@ -17,6 +17,20 @@ def get_betterprint_pdf(html, options=None, output: PdfWriter | None = None):
     pdf_file_path = os.path.abspath(f"/tmp/{frappe.generate_hash()}.pdf")
     start_server()
 
+    page_size = pdf_gen_utils.extract_page_size(options or {})
+    if page_size:
+        style_element = f"""
+        <style>
+        .print-format .paginatejs .page {{
+            width: {page_size.get("page-width", "210")}mm !important;
+            height: {page_size.get("page-height", "297")}mm !important;
+        }}
+        </style>
+        """
+
+        # Use regex to insert before </body>
+        html = re.sub(r"\s*</body>\s*", f"{style_element}</body>", html, flags=re.IGNORECASE)
+
     html = pdf_gen_utils.prepare_html_for_external_use(html)
 
     if not check_server_status():
