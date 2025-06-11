@@ -13,11 +13,11 @@ after_install = [
 ]
 before_uninstall = [
     "frappe_betterprint.install.before_uninstall",
-    "frappe_betterprint.pdf_renderer.kill_server",
+    "frappe_betterprint.pdf_renderer.stop_server",
 ]
 
 before_migrate = [
-    "frappe_betterprint.pdf_renderer.kill_server",
+    "frappe_betterprint.pdf_renderer.stop_server",
 ]
 
 after_migrate = [
