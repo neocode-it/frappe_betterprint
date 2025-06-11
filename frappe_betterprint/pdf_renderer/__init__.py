@@ -11,8 +11,8 @@ import frappe
 
 def install_browser():
     print("Installing betterprint browsers...")
-    bench_path = frappe.utils.get_bench_path() + "/betterprint_browser"
-    os.environ["PLAYWRIGHT_BROWSERS_PATH"] = bench_path
+    betterprint_browser_path = frappe.utils.get_bench_path() + "/betterprint_browser"
+    os.environ["PLAYWRIGHT_BROWSERS_PATH"] = betterprint_browser_path
 
     result = subprocess.run([sys.executable, "-m", "playwright", "install", "chromium"])
 
