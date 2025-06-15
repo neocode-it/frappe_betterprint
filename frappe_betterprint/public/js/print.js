@@ -1,3 +1,41 @@
+// Polyfill proper html skeleton in order to prevent layout shift between preview/print view
+// This will prevent the Quircks compytibility mode beeing applied, resulting in wrong styles
+//
+// PR to Frappe Core is on it's way ;) https://github.com/frappe/frappe/pull/32937
+function betterprintWaitForIframe(selector) {
+  return new Promise((resolve) => {
+    const element = document.querySelector(selector);
+    if (element) {
+      resolve(element);
+      return;
+    }
+
+    const observer = new MutationObserver((mutationsList, observer) => {
+      // Check if the element exists in the current DOM
+      const foundElement = document.querySelector(selector);
+      if (foundElement) {
+        observer.disconnect(); // Stop observing once found
+        resolve(foundElement);
+      }
+    });
+    observer.observe(document.body, { childList: true, subtree: true });
+  });
+}
+betterprintWaitForIframe("iframe.print-format-container").then((element) => {
+  const htmlSkeleton = `
+		<!DOCTYPE html>
+		<html lang="en">
+			<head>
+				<meta charset="UTF-8" />
+				<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+			</head>
+			<body>
+			</body>
+		</html>
+		`;
+  element.srcdoc = htmlSkeleton;
+});
+
 class BetterPrint {
   constructor() {
     // Print view page
