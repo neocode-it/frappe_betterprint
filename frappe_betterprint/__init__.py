@@ -2,10 +2,49 @@ __version__ = "0.0.1"
 
 import frappe
 from frappe.utils.pdf import get_pdf
-from frappe.www.printview import get_rendered_template
+from frappe.www.printview import get_rendered_template, get_html_and_style
 
 import frappe_betterprint.pdf_gen.utils as pdf_utils
 import frappe_betterprint.pdf_gen
+
+
+# Workaround to fix Frappe issue, which formats doctypes differently
+# in preview/ printview
+# https://github.com/frappe/frappe/issues/32941
+#
+# BP Issue ref: https://github.com/neocode-it/frappe_betterprint/issues/4
+# Bug is located within frappe core
+@frappe.whitelist()
+def workaround_get_html_and_style(
+    doc: str,
+    name: str | None = None,
+    print_format: str | None = None,
+    no_letterhead: bool | None = None,
+    letterhead: str | None = None,
+    trigger_print: bool = False,
+    style: str | None = None,
+    settings: str | None = None,
+):
+    if not isinstance(name, str):
+        import json
+
+        content = json.loads(doc)
+        doc = content["doctype"]
+        name = content["name"]
+
+    return get_html_and_style(
+        doc=doc,
+        name=name,
+        print_format=print_format,
+        no_letterhead=no_letterhead,
+        letterhead=letterhead,
+        trigger_print=trigger_print,
+        style=style,
+        settings=settings,
+    )
+
+
+frappe.www.printview.get_html_and_style = workaround_get_html_and_style
 
 
 def get_betterprint_template(
