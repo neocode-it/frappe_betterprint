@@ -849,6 +849,7 @@
               content.style.width = "100%";
               content.style.height = "unset";
               content.style.flexGrow = "1";
+              content.style.overflow = "scroll";
               const footer = document.createElement("div");
               footer.classList.add("footer");
               footer.style.margin = "0";
