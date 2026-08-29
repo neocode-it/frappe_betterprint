@@ -1,10 +1,16 @@
+import os
 import threading
 import time
 import queue
 import re
-from urllib.parse import urlparse
+from urllib.parse import urlparse, urlunparse
 
 from playwright.sync_api import sync_playwright
+
+# Origin used to fetch the site's own assets. Defaults to loopback, since the
+# renderer always runs on the same host as frappe. Override for setups where
+# frappe is not reachable on 127.0.0.1 (e.g. "http://127.0.0.1:8000").
+FETCH_ORIGIN = os.environ.get("BETTERPRINT_FETCH_ORIGIN", "")
 
 
 class WorkerThread(threading.Thread):
@@ -129,9 +135,26 @@ class WorkerThread(threading.Thread):
 
     def _playwright_cors_unset(self, route):
         try:
-            response = route.fetch()
+            response = route.fetch(url=self._rewrite_to_fetch_origin(route.request.url))
             headers = response.headers.copy()
             headers["Access-Control-Allow-Origin"] = "*"
             route.fulfill(status=response.status, headers=headers, body=response.body())
         except Exception as e:
             route.continue_()
+
+    def _rewrite_to_fetch_origin(self, url):
+        """Rewrites the url's origin so assets are fetched via loopback instead of
+        the site's public hostname, which may not be resolvable from the renderer."""
+        parts = urlparse(url)
+
+        if FETCH_ORIGIN:
+            target = urlparse(FETCH_ORIGIN)
+            if parts.netloc == target.netloc:
+                return url
+            return urlunparse(parts._replace(scheme=target.scheme, netloc=target.netloc))
+
+        if parts.hostname in ("127.0.0.1", "localhost"):
+            return url
+
+        netloc = "127.0.0.1" if not parts.port else f"127.0.0.1:{parts.port}"
+        return urlunparse(parts._replace(netloc=netloc))
